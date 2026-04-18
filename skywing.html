@@ -1,0 +1,1206 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>スカイウィング株式会社 | AIコンサルタント事業</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Plus+Jakarta+Sans:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* ===== リセット & 基本設定 ===== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    /* ===== カラーパレット（青系・信頼感） ===== */
+    :root {
+      --bg:           #070d1a;
+      --surface:      #0d1829;
+      --surface2:     #132238;
+      --border:       rgba(59,130,246,0.15);
+      --primary:      #3b82f6;
+      --primary-dark: #1d4ed8;
+      --primary-light:#60a5fa;
+      --accent:       #06b6d4;
+      --text:         #f0f6ff;
+      --text-2:       #94a3b8;
+      --muted:        #475569;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Plus Jakarta Sans', 'Noto Sans JP', sans-serif;
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    /* ===== レイアウトユーティリティ ===== */
+    .container {
+      width: min(1100px, 90vw);
+      margin: 0 auto;
+    }
+    .section { padding: 6rem 0; }
+
+    /* ===== セクション共通ヘッダー ===== */
+    .section-label {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--primary-light);
+      background: rgba(59,130,246,0.1);
+      border: 1px solid rgba(59,130,246,0.25);
+      border-radius: 100px;
+      padding: 4px 14px;
+      margin-bottom: 1rem;
+    }
+    .section-title {
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 800;
+      line-height: 1.2;
+      margin-bottom: 1rem;
+    }
+    .section-desc {
+      font-size: 1rem;
+      color: var(--text-2);
+      max-width: 520px;
+    }
+
+    /* ===== ボタン ===== */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 22px;
+      border-radius: 10px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      border: none;
+      font-family: inherit;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .btn:hover { transform: translateY(-2px); }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: #fff;
+      box-shadow: 0 4px 20px rgba(59,130,246,0.35);
+    }
+    .btn-primary:hover { box-shadow: 0 8px 28px rgba(59,130,246,0.5); }
+    .btn-outline {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.15);
+      color: var(--text);
+    }
+    .btn-outline:hover { border-color: var(--primary-light); color: var(--primary-light); }
+    .btn-lg { padding: 14px 30px; font-size: 1rem; border-radius: 12px; }
+
+    /* ===== ヘッダー（スクロールで背景が出現） ===== */
+    header {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      padding: 1rem 0;
+      transition: background 0.3s, backdrop-filter 0.3s, border-bottom 0.3s;
+    }
+    header.scrolled {
+      background: rgba(7,13,26,0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* ===== SVG ロゴ ===== */
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+    .logo-text {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--text);
+    }
+    .logo-text span { color: var(--primary-light); }
+
+    /* ===== デスクトップ ナビ ===== */
+    nav {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+    }
+    nav a {
+      color: var(--text-2);
+      text-decoration: none;
+      font-size: 0.88rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    nav a:hover { color: var(--text); }
+
+    /* ===== ハンバーガーメニュー（モバイル専用） ===== */
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 4px;
+      z-index: 101;
+    }
+    .hamburger span {
+      display: block;
+      width: 24px; height: 2px;
+      background: var(--text);
+      border-radius: 2px;
+      transition: all 0.3s;
+    }
+
+    /* ===== ヒーローセクション ===== */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      padding-top: 80px;
+      position: relative;
+      overflow: hidden;
+    }
+    /* 背景グリッド */
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(59,130,246,0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(59,130,246,0.05) 1px, transparent 1px);
+      background-size: 56px 56px;
+    }
+    /* 光のエフェクト */
+    .hero-glow {
+      position: absolute;
+      width: 700px; height: 700px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(59,130,246,0.12) 0%, transparent 65%);
+      top: -200px; right: -200px;
+      pointer-events: none;
+    }
+    .hero-glow2 {
+      position: absolute;
+      width: 500px; height: 500px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(6,182,212,0.08) 0%, transparent 65%);
+      bottom: -100px; left: -100px;
+      pointer-events: none;
+    }
+    .hero-content {
+      position: relative;
+      z-index: 1;
+    }
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--primary-light);
+      margin-bottom: 1.5rem;
+    }
+    .hero-eyebrow::before {
+      content: '';
+      width: 32px; height: 1px;
+      background: var(--primary-light);
+    }
+    .hero h1 {
+      font-size: clamp(2.4rem, 6vw, 4.2rem);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      margin-bottom: 1.5rem;
+    }
+    .hero h1 .gradient {
+      background: linear-gradient(135deg, var(--primary-light) 0%, var(--accent) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-sub {
+      font-size: 1.1rem;
+      color: var(--text-2);
+      max-width: 520px;
+      margin-bottom: 2.5rem;
+      line-height: 1.8;
+    }
+    .hero-btns {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 4rem;
+    }
+    .hero-stats {
+      display: flex;
+      gap: 3rem;
+      flex-wrap: wrap;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border);
+    }
+    .stat-num {
+      font-size: 2rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #fff, var(--primary-light));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1;
+    }
+    .stat-label {
+      font-size: 0.8rem;
+      color: var(--text-2);
+      margin-top: 4px;
+    }
+
+    /* ===== サービスカード ===== */
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-top: 3rem;
+    }
+    .service-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 2.5rem;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
+    }
+    /* ホバー時のトップボーダーアクセント */
+    .service-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .service-card:hover {
+      border-color: rgba(59,130,246,0.4);
+      transform: translateY(-4px);
+      box-shadow: 0 24px 48px rgba(0,0,0,0.4);
+    }
+    .service-card:hover::before { opacity: 1; }
+    .service-icon {
+      width: 56px; height: 56px;
+      border-radius: 14px;
+      background: rgba(59,130,246,0.12);
+      border: 1px solid rgba(59,130,246,0.2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.6rem;
+      margin-bottom: 1.5rem;
+    }
+    .service-card h3 { font-size: 1.2rem; font-weight: 700; margin-bottom: 0.75rem; }
+    .service-card p { font-size: 0.9rem; color: var(--text-2); line-height: 1.8; }
+    .service-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 1.5rem; }
+    .tag {
+      background: rgba(59,130,246,0.1);
+      border: 1px solid rgba(59,130,246,0.2);
+      border-radius: 6px;
+      padding: 3px 10px;
+      font-size: 0.72rem;
+      color: var(--primary-light);
+    }
+
+    /* ===== 実績数値セクション ===== */
+    .metrics {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 5rem 0;
+    }
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+      text-align: center;
+    }
+    .metric-item {
+      padding: 2rem;
+      position: relative;
+    }
+    /* 縦区切り線（デスクトップのみ） */
+    .metric-item:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      right: 0; top: 20%; bottom: 20%;
+      width: 1px;
+      background: var(--border);
+    }
+    .metric-num {
+      font-size: clamp(2.5rem, 5vw, 3.5rem);
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--primary-light), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1;
+      margin-bottom: 0.5rem;
+    }
+    .metric-label { font-size: 1rem; color: var(--text-2); font-weight: 500; }
+    .metric-desc { font-size: 0.8rem; color: var(--muted); margin-top: 4px; }
+
+    /* ===== ニュースプレースホルダー ===== */
+    .news-placeholder {
+      background: var(--surface2);
+      border: 1px dashed rgba(59,130,246,0.25);
+      border-radius: 16px;
+      padding: 3rem;
+      text-align: center;
+      margin-top: 3rem;
+      color: var(--muted);
+    }
+    .news-placeholder .icon { font-size: 2.5rem; margin-bottom: 1rem; }
+    .news-placeholder p { font-size: 0.95rem; line-height: 1.8; }
+
+    /* ===== 会社情報・CEO メッセージ ===== */
+    .about { background: var(--surface); }
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: start;
+      margin-top: 3rem;
+    }
+    .ceo-message { font-size: 1rem; color: var(--text-2); line-height: 2; }
+    .ceo-message blockquote {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--text);
+      border-left: 3px solid var(--primary);
+      padding-left: 1.2rem;
+      margin-bottom: 1.5rem;
+      line-height: 1.6;
+    }
+    .ceo-sign { margin-top: 1.5rem; display: flex; align-items: center; gap: 12px; }
+    .ceo-avatar {
+      width: 48px; height: 48px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem;
+      font-weight: 700;
+      color: white;
+      flex-shrink: 0;
+    }
+    .ceo-name { font-weight: 700; font-size: 0.95rem; }
+    .ceo-title { font-size: 0.8rem; color: var(--muted); }
+
+    /* 会社概要テーブル */
+    .company-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+    .company-table tr { border-bottom: 1px solid var(--border); }
+    .company-table td { padding: 1rem 0; vertical-align: top; }
+    .company-table td:first-child { color: var(--text-2); width: 40%; font-weight: 500; }
+
+    /* ===== チーム紹介 ===== */
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.5rem;
+      margin-top: 3rem;
+    }
+    .team-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2rem;
+      text-align: center;
+      transition: border-color 0.3s, transform 0.3s;
+    }
+    .team-card:hover { border-color: rgba(59,130,246,0.4); transform: translateY(-3px); }
+    .team-avatar {
+      width: 72px; height: 72px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: white;
+      margin: 0 auto 1rem;
+      border: 2px solid rgba(59,130,246,0.3);
+    }
+    .team-name { font-weight: 700; margin-bottom: 0.25rem; }
+    .team-role { font-size: 0.8rem; color: var(--primary-light); font-weight: 500; }
+    .team-bio { font-size: 0.82rem; color: var(--text-2); margin-top: 0.75rem; line-height: 1.7; }
+
+    /* ===== 採用バナー ===== */
+    .recruit-banner {
+      background: linear-gradient(135deg, rgba(29,78,216,0.2), rgba(6,182,212,0.1));
+      border: 1px solid rgba(59,130,246,0.25);
+      border-radius: 20px;
+      padding: 3.5rem;
+      text-align: center;
+      margin-top: 3rem;
+    }
+    .recruit-banner h3 { font-size: 1.8rem; font-weight: 800; margin-bottom: 0.75rem; }
+    .recruit-banner p { color: var(--text-2); margin-bottom: 2rem; line-height: 1.8; }
+    .recruit-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+    /* ===== お問い合わせ ===== */
+    .contact-section { background: var(--surface); }
+    .contact-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.6fr;
+      gap: 4rem;
+      margin-top: 3rem;
+      align-items: start;
+    }
+    .contact-info-item { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 1.5rem; }
+    .contact-icon {
+      width: 40px; height: 40px;
+      border-radius: 10px;
+      background: rgba(59,130,246,0.1);
+      border: 1px solid rgba(59,130,246,0.2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+    .ci-label { font-size: 0.75rem; color: var(--muted); margin-bottom: 2px; }
+    .ci-val { font-weight: 500; font-size: 0.95rem; }
+    .ci-note { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
+
+    /* お問い合わせフォーム */
+    .contact-form {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 2.5rem;
+    }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .form-group { margin-bottom: 1.25rem; }
+    .form-group label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-2);
+      margin-bottom: 6px;
+    }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px;
+      padding: 12px 16px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.9rem;
+      transition: border-color 0.2s;
+      outline: none;
+    }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus { border-color: var(--primary); }
+    .form-group textarea { resize: vertical; min-height: 120px; }
+    .form-group select option { background: #0d1829; color: var(--text); }
+
+    /* ===== 実績カード ===== */
+    .results-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.5rem;
+      margin-top: 3rem;
+    }
+    .result-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 2rem;
+      transition: border-color 0.3s, transform 0.3s;
+    }
+    .result-card:hover {
+      border-color: rgba(59,130,246,0.4);
+      transform: translateY(-3px);
+    }
+    .result-badge {
+      display: inline-block;
+      background: rgba(6,182,212,0.12);
+      border: 1px solid rgba(6,182,212,0.25);
+      color: var(--accent);
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      border-radius: 100px;
+      padding: 3px 12px;
+      margin-bottom: 1rem;
+    }
+    .result-card h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.6rem; }
+    .result-card p { font-size: 0.88rem; color: var(--text-2); line-height: 1.8; }
+    .result-icon { font-size: 2rem; margin-bottom: 1rem; }
+
+    /* ===== 料金表 ===== */
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-top: 3rem;
+    }
+    .pricing-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 2.5rem;
+      position: relative;
+      transition: border-color 0.3s, transform 0.3s;
+    }
+    .pricing-card:hover { border-color: rgba(59,130,246,0.4); transform: translateY(-4px); }
+    /* おすすめカードは枠を強調 */
+    .pricing-card.featured {
+      border-color: rgba(59,130,246,0.45);
+      background: linear-gradient(160deg, rgba(29,78,216,0.15), rgba(7,13,26,0) 60%), var(--surface);
+    }
+    .pricing-badge {
+      position: absolute;
+      top: -12px; left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      color: #fff;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      padding: 4px 16px;
+      border-radius: 100px;
+      white-space: nowrap;
+    }
+    .pricing-name { font-size: 1rem; font-weight: 600; color: var(--text-2); margin-bottom: 0.5rem; }
+    .pricing-price {
+      font-size: 2.6rem;
+      font-weight: 800;
+      line-height: 1;
+      margin-bottom: 0.25rem;
+      background: linear-gradient(135deg, #fff, var(--primary-light));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .pricing-price span { font-size: 1rem; font-weight: 500; }
+    .pricing-note { font-size: 0.78rem; color: var(--muted); margin-bottom: 1.5rem; }
+    .pricing-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 1.5rem 0;
+    }
+    .pricing-features { list-style: none; }
+    .pricing-features li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 0.88rem;
+      color: var(--text-2);
+      padding: 0.45rem 0;
+    }
+    .pricing-features li::before {
+      content: '✓';
+      color: var(--primary-light);
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    /* ===== フッター ===== */
+    footer {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      padding: 3rem 0 2rem;
+    }
+    .footer-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+    .footer-tagline { font-size: 0.82rem; color: var(--muted); margin-top: 6px; }
+    .footer-links { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+    .footer-links a {
+      color: var(--text-2);
+      text-decoration: none;
+      font-size: 0.85rem;
+      transition: color 0.2s;
+    }
+    .footer-links a:hover { color: var(--primary-light); }
+    .footer-copy {
+      text-align: center;
+      font-size: 0.78rem;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+      padding-top: 1.5rem;
+    }
+
+    /* ===== レスポンシブ（タブレット〜） ===== */
+    @media (max-width: 768px) {
+      /* ナビをモバイルオーバーレイに変換 */
+      nav {
+        display: none;
+        flex-direction: column;
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(7,13,26,0.97);
+        backdrop-filter: blur(16px);
+        align-items: center;
+        justify-content: center;
+        gap: 2rem;
+        z-index: 90;
+      }
+      nav.open { display: flex; }
+      nav.open a { font-size: 1.2rem; color: var(--text); }
+      .hamburger { display: flex; }
+      .about-grid { grid-template-columns: 1fr; gap: 2rem; }
+      .metrics-grid { grid-template-columns: 1fr; }
+      .metric-item::after { display: none !important; }
+      .contact-grid { grid-template-columns: 1fr; }
+      .form-row { grid-template-columns: 1fr; }
+      .hero-stats { gap: 1.5rem; }
+      .section { padding: 4rem 0; }
+      .service-card { padding: 1.8rem; }
+      .recruit-banner { padding: 2rem 1.5rem; }
+      .contact-form { padding: 1.8rem; }
+    }
+
+    /* ===== レスポンシブ（スマホ） ===== */
+    @media (max-width: 480px) {
+      .hero-btns { flex-direction: column; }
+      .btn-lg { width: 100%; justify-content: center; }
+      /* メトリクスを 2列に */
+      .metrics-grid { grid-template-columns: 1fr 1fr; }
+      .metric-item:nth-child(3) { grid-column: span 2; }
+      .recruit-banner h3 { font-size: 1.4rem; }
+      .recruit-btns { flex-direction: column; align-items: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===== ヘッダー ===== -->
+  <header id="header">
+    <div class="container header-inner">
+
+      <!-- ロゴ（翼をモチーフにしたSVG） -->
+      <a href="#" class="logo">
+        <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <defs>
+            <linearGradient id="wg-l" x1="0" y1="0" x2="18" y2="36" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#60a5fa"/>
+              <stop offset="100%" stop-color="#1d4ed8"/>
+            </linearGradient>
+            <linearGradient id="wg-r" x1="36" y1="0" x2="18" y2="36" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#06b6d4"/>
+              <stop offset="100%" stop-color="#3b82f6"/>
+            </linearGradient>
+          </defs>
+          <!-- 左の翼 -->
+          <path d="M18 20 C14 13 4 11 2 19 C7 16 13 19 16 25 Z" fill="url(#wg-l)"/>
+          <!-- 右の翼 -->
+          <path d="M18 20 C22 13 32 11 34 19 C29 16 23 19 20 25 Z" fill="url(#wg-r)"/>
+          <!-- 機体（縦線） -->
+          <line x1="18" y1="9" x2="18" y2="29" stroke="url(#wg-l)" stroke-width="2" stroke-linecap="round"/>
+          <!-- 中心 -->
+          <circle cx="18" cy="20" r="2.5" fill="#93c5fd"/>
+        </svg>
+        <span class="logo-text">Sky<span>Wing</span></span>
+      </a>
+
+      <!-- デスクトップナビ -->
+      <nav id="nav">
+        <a href="#services">サービス</a>
+        <a href="#results">実績</a>
+        <a href="#pricing">料金</a>
+        <a href="#about">会社情報</a>
+        <a href="#team">チーム</a>
+        <a href="#recruit">採用情報</a>
+        <a href="#contact">お問い合わせ</a>
+        <a class="btn btn-primary" href="#contact" style="padding:8px 18px;">無料相談</a>
+      </nav>
+
+      <!-- ハンバーガー（モバイル） -->
+      <button class="hamburger" id="hamburger" aria-label="メニューを開く">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+
+  <!-- ===== ヒーロー ===== -->
+  <section class="hero">
+    <div class="hero-glow"></div>
+    <div class="hero-glow2"></div>
+    <div class="container hero-content">
+      <div class="hero-eyebrow">AIコンサルタント事業</div>
+      <h1>
+        AIで、<span class="gradient">ビジネスの可能性</span><br>
+        を空へ広げる。
+      </h1>
+      <p class="hero-sub">
+        スカイウィングは、AI技術を活用したコンサルティングで<br>
+        企業の課題解決と持続的な成長を支援します。
+      </p>
+      <div class="hero-btns">
+        <a href="#contact" class="btn btn-primary btn-lg">無料相談はこちら →</a>
+        <a href="#services" class="btn btn-outline btn-lg">サービスを見る</a>
+      </div>
+      <div class="hero-stats">
+        <div>
+          <div class="stat-num">120<span style="font-size:1.2rem">社+</span></div>
+          <div class="stat-label">導入社数</div>
+        </div>
+        <div>
+          <div class="stat-num">98<span style="font-size:1.2rem">%</span></div>
+          <div class="stat-label">顧客満足度</div>
+        </div>
+        <div>
+          <div class="stat-num">250<span style="font-size:1.2rem">件+</span></div>
+          <div class="stat-label">実績件数</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ===== サービス ===== -->
+  <section class="section" id="services">
+    <div class="container">
+      <div class="section-label">Services</div>
+      <h2 class="section-title">提供サービス</h2>
+      <p class="section-desc">最先端のAI技術で、貴社のビジネス課題を解決します。</p>
+
+      <div class="services-grid">
+
+        <!-- サービス①：AIチャットボット -->
+        <div class="service-card">
+          <div class="service-icon">🤖</div>
+          <h3>AI チャットボット作成</h3>
+          <p>
+            業種・業態に特化したAIチャットボットを設計・開発します。
+            カスタマーサポートの自動化、社内FAQ対応、営業支援など
+            あらゆるシーンに対応。導入後の保守・改善もワンストップで提供します。
+          </p>
+          <div class="service-tags">
+            <span class="tag">LLM</span>
+            <span class="tag">RAG</span>
+            <span class="tag">API連携</span>
+            <span class="tag">24/7対応</span>
+          </div>
+        </div>
+
+        <!-- サービス③：LINE公式アカウント × AIボット -->
+        <div class="service-card">
+          <div class="service-icon">🟢</div>
+          <h3>LINE公式アカウント × AI ボット作成</h3>
+          <p>
+            LINE公式アカウントにAIボットを連携し、予約受付・よくある質問への自動回答・
+            リマインド送信をLINE上でシームレスに実現。
+            顧客との接点を最大化し、リピート率向上に貢献します。
+          </p>
+          <div class="service-tags">
+            <span class="tag">ChatGPT</span>
+            <span class="tag">Dify</span>
+            <span class="tag">LINE</span>
+            <span class="tag">Googleアカウント</span>
+            <span class="tag">自動応答</span>
+          </div>
+        </div>
+
+        <!-- サービス②：AI業務効率化 -->
+        <div class="service-card">
+          <div class="service-icon">⚡</div>
+          <h3>AI で業務効率化</h3>
+          <p>
+            現場の業務フローを分析し、AIによる自動化・最適化を実現します。
+            データ処理・書類作成・レポート生成など繰り返し業務を削減し、
+            チームがコア業務に集中できる環境をつくります。
+          </p>
+          <div class="service-tags">
+            <span class="tag">業務自動化</span>
+            <span class="tag">データ分析</span>
+            <span class="tag">コスト削減</span>
+            <span class="tag">生産性向上</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ===== 実績数値 ===== -->
+  <div class="metrics">
+    <div class="container">
+      <div class="metrics-grid">
+        <div class="metric-item">
+          <div class="metric-num">120社+</div>
+          <div class="metric-label">導入社数</div>
+          <div class="metric-desc">スタートアップから大企業まで</div>
+        </div>
+        <div class="metric-item">
+          <div class="metric-num">98%</div>
+          <div class="metric-label">顧客満足度</div>
+          <div class="metric-desc">導入後アンケート調査結果</div>
+        </div>
+        <div class="metric-item">
+          <div class="metric-num">250件+</div>
+          <div class="metric-label">実績件数</div>
+          <div class="metric-desc">累計プロジェクト数</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ===== 実績 ===== -->
+  <section class="section" id="results">
+    <div class="container">
+      <div class="section-label">Results</div>
+      <h2 class="section-title">導入実績</h2>
+      <p class="section-desc">さまざまな業種・規模の企業にAIソリューションを導入してきました。</p>
+
+      <div class="results-grid">
+
+        <!-- 実績①：予約対応ボット -->
+        <div class="result-card">
+          <div class="result-icon">📅</div>
+          <div class="result-badge">飲食・サービス業</div>
+          <h3>予約対応ボット</h3>
+          <p>電話・メールで対応していた予約受付をAIチャットボットで自動化。24時間対応が可能になり、スタッフの対応工数を約70%削減。顧客満足度も向上しました。</p>
+        </div>
+
+        <!-- 実績②：FAQ対応 -->
+        <div class="result-card">
+          <div class="result-icon">💬</div>
+          <div class="result-badge">EC・小売</div>
+          <h3>FAQ 対応ボット</h3>
+          <p>よくある問い合わせをAIが自動回答。カスタマーサポートへのお問い合わせ件数が月間40%減少し、オペレーターがより複雑な対応に集中できる環境を実現しました。</p>
+        </div>
+
+        <!-- 実績③：LINE公式アカウント × AIボット -->
+        <div class="result-card">
+          <div class="result-icon">🟢</div>
+          <div class="result-badge">美容・クリニック</div>
+          <h3>LINE公式アカウント × AI ボット</h3>
+          <p>LINE公式アカウントにAIボットを連携し、予約・案内・リマインドをすべて自動化。LINE上でシームレスなコミュニケーションを実現し、リピート率が向上しました。</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ===== 料金表 ===== -->
+  <section class="section" id="pricing" style="background: var(--surface);">
+    <div class="container">
+      <div class="section-label">Pricing</div>
+      <h2 class="section-title">料金プラン</h2>
+      <p class="section-desc">ご予算・ご要望に合わせて柔軟にご提案します。まずはお気軽にご相談ください。</p>
+
+      <div class="pricing-grid">
+
+        <!-- プラン①：AI無料相談 + 当日作成 -->
+        <div class="pricing-card">
+          <div class="pricing-name">AI 無料相談 + 当日作成</div>
+          <div class="pricing-price">¥10,000<span> 〜</span></div>
+          <div class="pricing-note">※ 内容により変動します</div>
+          <div class="pricing-divider"></div>
+          <ul class="pricing-features">
+            <li>無料ヒアリング・課題整理</li>
+            <li>当日中にプロトタイプ作成</li>
+            <li>簡易チャットボット導入</li>
+            <li>基本的な動作確認・修正</li>
+          </ul>
+          <div style="margin-top:2rem;">
+            <a href="#contact" class="btn btn-outline" style="width:100%; justify-content:center;">相談してみる</a>
+          </div>
+        </div>
+
+        <!-- プラン②：AIチャットボット作成（おすすめ） -->
+        <div class="pricing-card featured">
+          <div class="pricing-badge">おすすめ</div>
+          <div class="pricing-name">AI チャットボット作成</div>
+          <div class="pricing-price">¥50,000<span> 〜</span></div>
+          <div class="pricing-note">※ 機能・規模により変動します</div>
+          <div class="pricing-divider"></div>
+          <ul class="pricing-features">
+            <li>要件定義・設計から対応</li>
+            <li>業種特化の AI チューニング</li>
+            <li>LINE / Web サイト等への連携</li>
+            <li>管理画面・ログ分析機能</li>
+            <li>導入後1ヶ月の保守サポート</li>
+          </ul>
+          <div style="margin-top:2rem;">
+            <a href="#contact" class="btn btn-primary" style="width:100%; justify-content:center;">無料相談はこちら →</a>
+          </div>
+        </div>
+
+      </div>
+      <p style="text-align:center; margin-top:2rem; font-size:0.82rem; color:var(--muted);">
+        法人向け・大規模案件はカスタムお見積もりいたします。お気軽にご連絡ください。
+      </p>
+    </div>
+  </section>
+
+
+  <!-- ===== 会社情報 ===== -->
+  <section class="section about" id="about">
+    <div class="container">
+      <div class="section-label">About</div>
+      <h2 class="section-title">会社情報</h2>
+
+      <div class="about-grid">
+
+        <!-- 代表メッセージ -->
+        <div class="ceo-message">
+          <blockquote>「ともに、新たな未来へ」</blockquote>
+          <p>
+            テクノロジーが急速に進化する時代において、AIを活用することは
+            もはや選択肢ではなく、競争力の源泉となっています。<br><br>
+            スカイウィングは「AIをすべての企業の力に」をビジョンに掲げ、
+            複雑な技術を分かりやすく、実際のビジネスに直結する形でお届けします。<br><br>
+            一社一社の課題に真摯に向き合い、ともに新たな未来を切り開いていきましょう。
+          </p>
+          <div class="ceo-sign">
+            <div class="ceo-avatar">清</div>
+            <div>
+              <div class="ceo-name">清水 飛翔</div>
+              <div class="ceo-title">代表取締役 CEO</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 会社概要テーブル -->
+        <div>
+          <table class="company-table">
+            <tr><td>会社名</td><td>スカイウィング株式会社</td></tr>
+            <tr><td>設立</td><td>2026年</td></tr>
+            <tr><td>代表取締役</td><td>清水 飛翔</td></tr>
+            <tr><td>所在地</td><td>〒150-0001<br>東京都渋谷区神宮前1-1-1</td></tr>
+            <tr><td>従業員数</td><td>50名</td></tr>
+            <tr><td>事業内容</td><td>AIコンサルティング事業<br>AIチャットボット開発<br>AI業務効率化支援</td></tr>
+            <tr><td>メール</td><td>info@skywing-ai.co.jp</td></tr>
+            <tr><td>電話</td><td>03-1234-5678</td></tr>
+          </table>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ===== チーム紹介 ===== -->
+  <section class="section" id="team">
+    <div class="container">
+      <div class="section-label">Team</div>
+      <h2 class="section-title">チーム紹介</h2>
+      <p class="section-desc">多様なバックグラウンドを持つプロフェッショナルが集まっています。</p>
+
+      <div class="team-grid">
+        <div class="team-card">
+          <div class="team-avatar" style="background:linear-gradient(135deg,#3b82f6,#1d4ed8)">清</div>
+          <div class="team-name">清水 飛翔</div>
+          <div class="team-role">代表取締役 CEO</div>
+          <div class="team-bio">AI・機械学習の専門家。前職では大手IT企業にてML基盤を設計。ビジネスとテクノロジーの橋渡し役として活躍。</div>
+        </div>
+        <div class="team-card">
+          <div class="team-avatar" style="background:linear-gradient(135deg,#0284c7,#06b6d4)">田</div>
+          <div class="team-name">田中 誠一</div>
+          <div class="team-role">CTO</div>
+          <div class="team-bio">LLM・RAGシステムの設計・実装に精通。自然言語処理の研究経験を活かし、高精度AIシステムを構築。</div>
+        </div>
+        <div class="team-card">
+          <div class="team-avatar" style="background:linear-gradient(135deg,#7c3aed,#4f46e5)">山</div>
+          <div class="team-name">山田 咲</div>
+          <div class="team-role">プロダクトマネージャー</div>
+          <div class="team-bio">ユーザーリサーチとプロダクト開発を一体化。顧客の課題を深く理解し、最適なAIソリューションを設計。</div>
+        </div>
+        <div class="team-card">
+          <div class="team-avatar" style="background:linear-gradient(135deg,#059669,#0284c7)">鈴</div>
+          <div class="team-name">鈴木 健太</div>
+          <div class="team-role">AI エンジニア</div>
+          <div class="team-bio">Python・PyTorchによるモデル開発から本番環境のMLOps整備まで、エンドツーエンドで対応。</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ===== 採用情報 ===== -->
+  <section class="section" id="recruit">
+    <div class="container">
+      <div class="section-label">Recruit</div>
+      <h2 class="section-title">採用情報</h2>
+      <div class="recruit-banner">
+        <h3>AIで社会を変えたい仲間を、募集しています。</h3>
+        <p>
+          エンジニア・コンサルタント・デザイナーなど、あらゆるポジションで積極採用中。<br>
+          リモートワーク可・フレックス制で、自由な働き方を実現できます。
+        </p>
+        <div class="recruit-btns">
+          <a href="mailto:recruit@skywing-ai.co.jp" class="btn btn-primary btn-lg">採用に応募する</a>
+          <a href="mailto:recruit@skywing-ai.co.jp" class="btn btn-outline btn-lg">詳細を問い合わせる</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ===== お問い合わせ ===== -->
+  <section class="section contact-section" id="contact">
+    <div class="container">
+      <div class="section-label">Contact</div>
+      <h2 class="section-title">お問い合わせ</h2>
+      <p class="section-desc">ご質問・ご相談はお気軽にどうぞ。通常1営業日以内にご返答します。</p>
+
+      <div class="contact-grid">
+
+        <!-- 連絡先情報 -->
+        <div>
+          <div class="contact-info-item">
+            <div class="contact-icon">✉</div>
+            <div>
+              <div class="ci-label">メールアドレス</div>
+              <div class="ci-val">info@skywing-ai.co.jp</div>
+            </div>
+          </div>
+          <div class="contact-info-item">
+            <div class="contact-icon">📞</div>
+            <div>
+              <div class="ci-label">お電話</div>
+              <div class="ci-val">03-1234-5678</div>
+              <div class="ci-note">平日 9:00〜18:00</div>
+            </div>
+          </div>
+          <div class="contact-info-item">
+            <div class="contact-icon">📍</div>
+            <div>
+              <div class="ci-label">所在地</div>
+              <div class="ci-val">東京都渋谷区神宮前1-1-1</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- お問い合わせフォーム -->
+        <div class="contact-form">
+          <form>
+            <div class="form-row">
+              <div class="form-group">
+                <label>お名前 *</label>
+                <input type="text" placeholder="山田 太郎">
+              </div>
+              <div class="form-group">
+                <label>会社名</label>
+                <input type="text" placeholder="株式会社〇〇">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>メールアドレス *</label>
+              <input type="email" placeholder="example@company.co.jp">
+            </div>
+            <div class="form-group">
+              <label>お問い合わせ種別</label>
+              <select>
+                <option value="">選択してください</option>
+                <option>AIチャットボット作成について</option>
+                <option>AI業務効率化について</option>
+                <option>採用について</option>
+                <option>その他</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>お問い合わせ内容 *</label>
+              <textarea placeholder="お気軽にご記入ください..."></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary btn-lg" style="width:100%; justify-content:center;">
+              送信する →
+            </button>
+          </form>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ===== フッター ===== -->
+  <footer>
+    <div class="container">
+      <div class="footer-inner">
+        <div>
+          <a href="#" class="logo">
+            <svg width="28" height="28" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <defs>
+                <linearGradient id="fg-l" x1="0" y1="0" x2="18" y2="36" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stop-color="#60a5fa"/>
+                  <stop offset="100%" stop-color="#1d4ed8"/>
+                </linearGradient>
+                <linearGradient id="fg-r" x1="36" y1="0" x2="18" y2="36" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stop-color="#06b6d4"/>
+                  <stop offset="100%" stop-color="#3b82f6"/>
+                </linearGradient>
+              </defs>
+              <path d="M18 20 C14 13 4 11 2 19 C7 16 13 19 16 25 Z" fill="url(#fg-l)"/>
+              <path d="M18 20 C22 13 32 11 34 19 C29 16 23 19 20 25 Z" fill="url(#fg-r)"/>
+              <line x1="18" y1="9" x2="18" y2="29" stroke="url(#fg-l)" stroke-width="2" stroke-linecap="round"/>
+              <circle cx="18" cy="20" r="2.5" fill="#93c5fd"/>
+            </svg>
+            <span class="logo-text">Sky<span>Wing</span></span>
+          </a>
+          <div class="footer-tagline">AIで、ビジネスの可能性を空へ広げる。</div>
+        </div>
+        <div class="footer-links">
+          <a href="#services">サービス</a>
+          <a href="#about">会社情報</a>
+          <a href="#team">チーム</a>
+          <a href="#recruit">採用情報</a>
+          <a href="#contact">お問い合わせ</a>
+        </div>
+      </div>
+      <div class="footer-copy">
+        © 2026 スカイウィング株式会社 All Rights Reserved.
+      </div>
+    </div>
+  </footer>
+
+
+  <script>
+    /* スクロール時にヘッダーに背景を追加 */
+    const header = document.getElementById('header');
+    window.addEventListener('scroll', () => {
+      header.classList.toggle('scrolled', window.scrollY > 40);
+    });
+
+    /* モバイルメニューの開閉 */
+    const hamburger = document.getElementById('hamburger');
+    const nav = document.getElementById('nav');
+    hamburger.addEventListener('click', () => {
+      const isOpen = nav.classList.toggle('open');
+      hamburger.setAttribute('aria-label', isOpen ? 'メニューを閉じる' : 'メニューを開く');
+    });
+
+    /* ナビリンクをタップしたらメニューを閉じる */
+    nav.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        nav.classList.remove('open');
+        hamburger.setAttribute('aria-label', 'メニューを開く');
+      });
+    });
+  </script>
+
+</body>
+</html>
