@@ -1,0 +1,1436 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>タスク管理 — Perfect Days</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --surface: #111118;
+      --surface2: #1a1a24;
+      --border: rgba(124, 58, 237, 0.2);
+      --accent: #7c3aed;
+      --accent2: #06b6d4;
+      --accent-glow: rgba(124, 58, 237, 0.4);
+      --text: #e2e8f0;
+      --text-muted: #64748b;
+      --text-dim: #94a3b8;
+      --danger: #ef4444;
+      --warn: #f59e0b;
+      --ok: #10b981;
+      --radius: 12px;
+      --radius-sm: 8px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Space Grotesk', 'Noto Sans JP', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(124,58,237,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(124,58,237,0.04) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .app {
+      position: relative;
+      z-index: 1;
+      max-width: 720px;
+      margin: 0 auto;
+      padding: clamp(1rem, 4vw, 2rem);
+      padding-bottom: 7rem;
+    }
+
+    /* ── ヘッダー ── */
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1.75rem;
+    }
+
+    .header-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+
+    .header-text h1 {
+      font-size: clamp(1.1rem, 3vw, 1.4rem);
+      font-weight: 700;
+      background: linear-gradient(135deg, #fff 30%, var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .header-text .date-label {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: 0.1rem;
+    }
+
+    /* ── 統計バー ── */
+    .stats {
+      display: flex;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .stat-chip {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 0.35rem 0.85rem;
+      font-size: 0.78rem;
+      color: var(--text-dim);
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .stat-chip .dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+    }
+
+    /* ── フィルター ── */
+    .filter-bar {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.25rem;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 0.4rem 1rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+
+    .filter-btn:hover { color: var(--text); border-color: var(--accent); }
+    .filter-btn.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+      box-shadow: 0 0 12px var(--accent-glow);
+    }
+
+    /* ── 追加フォーム ── */
+    .add-form {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+    }
+
+    .add-form-title {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-weight: 500;
+      margin-bottom: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 0.65rem;
+    }
+
+    .input-row input {
+      flex: 1;
+      background: var(--surface2);
+      border: 1px solid rgba(124,58,237,0.15);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.9rem;
+      padding: 0.6rem 0.85rem;
+      outline: none;
+      transition: border-color 0.2s;
+      min-width: 0;
+    }
+
+    .input-row input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px var(--accent-glow);
+    }
+
+    .input-row input::placeholder { color: var(--text-muted); }
+
+    .meta-row {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .meta-row select,
+    .meta-row input[type="date"],
+    .meta-row input[type="time"] {
+      background: var(--surface2);
+      border: 1px solid rgba(124,58,237,0.15);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.82rem;
+      padding: 0.45rem 0.75rem;
+      outline: none;
+      transition: border-color 0.2s;
+      cursor: pointer;
+      color-scheme: dark;
+    }
+
+    .meta-row select:focus,
+    .meta-row input[type="date"]:focus,
+    .meta-row input[type="time"]:focus { border-color: var(--accent); }
+    .meta-row select option { background: var(--surface2); }
+
+    .btn-add {
+      background: linear-gradient(135deg, var(--accent), #6d28d9);
+      border: none;
+      border-radius: var(--radius-sm);
+      color: #fff;
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 600;
+      padding: 0.6rem 1.5rem;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+      box-shadow: 0 0 16px var(--accent-glow);
+      white-space: nowrap;
+    }
+
+    .btn-add:hover { opacity: 0.9; }
+    .btn-add:active { transform: scale(0.97); }
+
+    /* ── タスクリスト ── */
+    .task-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    .task-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 0.85rem 1rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      transition: border-color 0.2s;
+      animation: fadeIn 0.2s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .task-item:hover { border-color: rgba(124,58,237,0.4); }
+    .task-item.done { opacity: 0.45; }
+    .task-item.done .task-title { text-decoration: line-through; color: var(--text-muted); }
+
+    .task-item[data-pri="high"] { border-left: 3px solid var(--danger); }
+    .task-item[data-pri="med"]  { border-left: 3px solid var(--warn); }
+    .task-item[data-pri="low"]  { border-left: 3px solid var(--ok); }
+
+    .task-check {
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      border: 2px solid var(--text-muted);
+      flex-shrink: 0;
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 1px;
+    }
+
+    .task-check.checked { background: var(--accent); border-color: var(--accent); }
+    .task-check.checked::after { content: '✓'; font-size: 0.65rem; color: #fff; font-weight: 700; }
+
+    .task-body { flex: 1; min-width: 0; }
+
+    .task-title {
+      font-size: 0.92rem;
+      font-weight: 500;
+      line-height: 1.4;
+      word-break: break-word;
+    }
+
+    .task-meta {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 0.35rem;
+      flex-wrap: wrap;
+    }
+
+    .tag {
+      font-size: 0.7rem;
+      padding: 0.15rem 0.55rem;
+      border-radius: 999px;
+      font-weight: 500;
+    }
+
+    .tag-cat { background: rgba(124,58,237,0.15); color: #a78bfa; border: 1px solid rgba(124,58,237,0.25); }
+    .tag-pri-high { background: rgba(239,68,68,0.12); color: #f87171; border: 1px solid rgba(239,68,68,0.25); }
+    .tag-pri-med  { background: rgba(245,158,11,0.12); color: #fbbf24; border: 1px solid rgba(245,158,11,0.25); }
+    .tag-pri-low  { background: rgba(16,185,129,0.12); color: #34d399; border: 1px solid rgba(16,185,129,0.25); }
+
+    .due-date {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 0.2rem;
+    }
+    .due-date.overdue { color: var(--danger); }
+    .due-date.today   { color: var(--warn); font-weight: 600; }
+
+    .task-actions { display: flex; gap: 0.25rem; flex-shrink: 0; }
+
+    .btn-icon {
+      width: 28px; height: 28px;
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: var(--radius-sm);
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      transition: all 0.15s;
+      font-family: inherit;
+    }
+
+    .btn-icon:hover { background: var(--surface2); border-color: var(--border); color: var(--text); }
+    .btn-icon.del:hover { color: var(--danger); border-color: rgba(239,68,68,0.3); }
+
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--text-muted);
+    }
+    .empty-state .emoji { font-size: 2.5rem; margin-bottom: 0.75rem; }
+    .empty-state p { font-size: 0.9rem; }
+
+    .done-toggle {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      margin-top: 1.5rem;
+      padding: 0.5rem 0;
+      user-select: none;
+      border-top: 1px solid rgba(255,255,255,0.05);
+    }
+    .done-toggle:hover { color: var(--text-dim); }
+    .done-toggle .arrow { transition: transform 0.2s; display: inline-block; }
+    .done-toggle.open .arrow { transform: rotate(90deg); }
+
+    /* ── FABs ── */
+    .fab-ai {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      width: 52px; height: 52px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border: none;
+      border-radius: 50%;
+      color: #fff;
+      font-size: 1.3rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 20px var(--accent-glow);
+      z-index: 100;
+      transition: transform 0.2s;
+    }
+    .fab-ai:hover { transform: scale(1.08); }
+    .fab-ai.open { background: linear-gradient(135deg, #6d28d9, #0e7490); }
+
+    .fab-scroll {
+      position: fixed;
+      bottom: 5.5rem;
+      right: 1.5rem;
+      width: 40px; height: 40px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      color: var(--text-dim);
+      font-size: 1rem;
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+    .fab-scroll.show { display: flex; }
+
+    /* ── AI チャットパネル ── */
+    .chat-panel {
+      position: fixed;
+      bottom: 0; right: 0;
+      width: min(420px, 100vw);
+      height: min(600px, 90vh);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-bottom: none;
+      border-radius: var(--radius) var(--radius) 0 0;
+      display: flex;
+      flex-direction: column;
+      z-index: 99;
+      transform: translateY(110%);
+      transition: transform 0.3s cubic-bezier(.4,0,.2,1);
+      box-shadow: 0 -8px 40px rgba(0,0,0,0.5);
+    }
+    .chat-panel.open { transform: translateY(0); }
+
+    .chat-header {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.9rem 1rem;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .chat-header-icon {
+      width: 28px; height: 28px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+    }
+
+    .chat-header h2 {
+      font-size: 0.9rem;
+      font-weight: 600;
+      flex: 1;
+    }
+
+    .chat-header-actions { display: flex; gap: 0.25rem; }
+
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+      scroll-behavior: smooth;
+    }
+
+    .chat-messages::-webkit-scrollbar { width: 4px; }
+    .chat-messages::-webkit-scrollbar-track { background: transparent; }
+    .chat-messages::-webkit-scrollbar-thumb { background: rgba(124,58,237,0.3); border-radius: 2px; }
+
+    .msg {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      animation: fadeIn 0.2s ease;
+    }
+
+    .msg.user { align-items: flex-end; }
+    .msg.assistant { align-items: flex-start; }
+
+    .msg-bubble {
+      max-width: 85%;
+      padding: 0.65rem 0.9rem;
+      border-radius: 12px;
+      font-size: 0.88rem;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .msg.user .msg-bubble {
+      background: linear-gradient(135deg, var(--accent), #6d28d9);
+      color: #fff;
+      border-bottom-right-radius: 4px;
+    }
+
+    .msg.assistant .msg-bubble {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-bottom-left-radius: 4px;
+    }
+
+    .msg-label {
+      font-size: 0.68rem;
+      color: var(--text-muted);
+    }
+
+    .typing-dot {
+      display: inline-block;
+      width: 6px; height: 6px;
+      background: var(--text-muted);
+      border-radius: 50%;
+      animation: blink 1.2s infinite;
+      margin: 0 1px;
+    }
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes blink {
+      0%,80%,100% { opacity: 0.2; transform: scale(0.8); }
+      40% { opacity: 1; transform: scale(1); }
+    }
+
+    .chat-input-area {
+      display: flex;
+      gap: 0.5rem;
+      padding: 0.75rem 1rem;
+      border-top: 1px solid var(--border);
+      flex-shrink: 0;
+      background: var(--surface);
+    }
+
+    .chat-input {
+      flex: 1;
+      background: var(--surface2);
+      border: 1px solid rgba(124,58,237,0.2);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.88rem;
+      padding: 0.6rem 0.85rem;
+      outline: none;
+      resize: none;
+      min-height: 40px;
+      max-height: 120px;
+      overflow-y: auto;
+      line-height: 1.5;
+    }
+    .chat-input:focus { border-color: var(--accent); }
+    .chat-input::placeholder { color: var(--text-muted); }
+
+    .btn-send {
+      width: 40px; height: 40px;
+      background: var(--accent);
+      border: none;
+      border-radius: var(--radius-sm);
+      color: #fff;
+      font-size: 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: opacity 0.2s;
+      box-shadow: 0 0 10px var(--accent-glow);
+    }
+    .btn-send:hover { opacity: 0.85; }
+    .btn-send:disabled { opacity: 0.4; cursor: default; }
+
+    /* ── 設定パネル ── */
+    .settings-panel {
+      padding: 1rem;
+      border-top: 1px solid var(--border);
+      flex-shrink: 0;
+      display: none;
+      background: var(--surface);
+      border-radius: 0 0 var(--radius) var(--radius);
+    }
+    .settings-panel.show { display: block; }
+
+    .settings-title {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.6rem;
+    }
+
+    .settings-row {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .settings-input {
+      flex: 1;
+      background: var(--surface2);
+      border: 1px solid rgba(124,58,237,0.2);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.82rem;
+      padding: 0.5rem 0.75rem;
+      outline: none;
+    }
+    .settings-input:focus { border-color: var(--accent); }
+    .settings-input::placeholder { color: var(--text-muted); }
+
+    .btn-settings-save {
+      background: var(--accent);
+      border: none;
+      border-radius: var(--radius-sm);
+      color: #fff;
+      font-family: inherit;
+      font-size: 0.8rem;
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .settings-note {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-top: 0.5rem;
+      line-height: 1.5;
+    }
+
+    .api-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-size: 0.72rem;
+      margin-top: 0.5rem;
+    }
+    .api-status .dot { width: 6px; height: 6px; border-radius: 50%; }
+    .api-status.ok .dot { background: var(--ok); }
+    .api-status.no .dot { background: var(--text-muted); }
+
+    /* ── 編集モーダル ── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(4px);
+      z-index: 200;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    .modal-overlay.show { display: flex; }
+
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      width: 100%;
+      max-width: 440px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+      animation: fadeIn 0.2s ease;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .modal h2 { font-size: 1rem; margin-bottom: 1.1rem; }
+
+    .modal label {
+      display: block;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-bottom: 0.3rem;
+      margin-top: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .modal input,
+    .modal select {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid rgba(124,58,237,0.2);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.9rem;
+      padding: 0.65rem 0.9rem;
+      outline: none;
+      color-scheme: dark;
+    }
+    .modal input:focus, .modal select:focus { border-color: var(--accent); }
+    .modal select option { background: var(--surface2); }
+
+    .modal-row {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .modal-row > * { flex: 1; }
+
+    .modal-btns {
+      display: flex;
+      gap: 0.65rem;
+      justify-content: flex-end;
+      margin-top: 1.25rem;
+    }
+
+    .btn-cancel {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-muted);
+      font-family: inherit;
+      font-size: 0.88rem;
+      padding: 0.55rem 1.2rem;
+      cursor: pointer;
+    }
+
+    .btn-save {
+      background: linear-gradient(135deg, var(--accent), #6d28d9);
+      border: none;
+      border-radius: var(--radius-sm);
+      color: #fff;
+      font-family: inherit;
+      font-size: 0.88rem;
+      font-weight: 600;
+      padding: 0.55rem 1.4rem;
+      cursor: pointer;
+      box-shadow: 0 0 12px var(--accent-glow);
+    }
+
+    /* ── QRコードモーダル ── */
+    .qr-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.75);
+      backdrop-filter: blur(6px);
+      z-index: 300;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    .qr-overlay.show { display: flex; }
+
+    .qr-modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.75rem 1.5rem;
+      width: 100%;
+      max-width: 320px;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+      animation: fadeIn 0.2s ease;
+    }
+
+    .qr-modal h2 {
+      font-size: 1rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .qr-modal p {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-bottom: 1.25rem;
+    }
+
+    #qrCanvas {
+      background: #fff;
+      border-radius: var(--radius-sm);
+      padding: 12px;
+      display: inline-block;
+    }
+
+    .qr-url {
+      margin-top: 1rem;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      word-break: break-all;
+      background: var(--surface2);
+      border-radius: var(--radius-sm);
+      padding: 0.5rem 0.75rem;
+    }
+
+    .qr-close {
+      margin-top: 1rem;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-muted);
+      font-family: inherit;
+      font-size: 0.85rem;
+      padding: 0.5rem 1.5rem;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    .btn-qr {
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      padding: 0.4rem 0.7rem;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: inherit;
+      margin-left: auto;
+    }
+    .btn-qr:hover { color: var(--text); border-color: var(--accent); }
+
+    /* ── レスポンシブ ── */
+    @media (max-width: 480px) {
+      .input-row { flex-wrap: wrap; }
+      .input-row input { flex-basis: 100%; }
+      .btn-add { width: 100%; margin-top: 0.25rem; }
+      .meta-row select,
+      .meta-row input[type="date"],
+      .meta-row input[type="time"] { flex: 1; min-width: 100px; }
+      .chat-panel { width: 100vw; height: 85vh; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="app">
+  <div class="header">
+    <div class="header-icon">✦</div>
+    <div class="header-text">
+      <h1>タスク管理</h1>
+      <div class="date-label" id="dateLabel"></div>
+    </div>
+    <button class="btn-qr" onclick="openQr()" title="QRコードでスマホに共有">📱 QR</button>
+  </div>
+
+  <div class="stats" id="stats"></div>
+
+  <div class="filter-bar">
+    <button class="filter-btn active" data-filter="all">すべて</button>
+    <button class="filter-btn" data-filter="today">今日</button>
+    <button class="filter-btn" data-filter="high">高優先度</button>
+    <button class="filter-btn" data-filter="work">仕事</button>
+    <button class="filter-btn" data-filter="private">プライベート</button>
+    <button class="filter-btn" data-filter="study">勉強</button>
+  </div>
+
+  <!-- 追加フォーム -->
+  <div class="add-form">
+    <div class="add-form-title">+ 新しいタスク</div>
+    <div class="input-row">
+      <input type="text" id="newTitle" placeholder="タスクを入力…" maxlength="120" />
+      <button class="btn-add" onclick="addTask()">追加</button>
+    </div>
+    <div class="meta-row">
+      <select id="newCategory">
+        <option value="">カテゴリ</option>
+        <option value="work">仕事</option>
+        <option value="private">プライベート</option>
+        <option value="study">勉強</option>
+        <option value="health">健康</option>
+        <option value="other">その他</option>
+      </select>
+      <select id="newPriority">
+        <option value="med">中優先度</option>
+        <option value="high">高優先度</option>
+        <option value="low">低優先度</option>
+      </select>
+      <input type="date" id="newDue" />
+      <input type="time" id="newTime" />
+    </div>
+  </div>
+
+  <div class="task-list" id="taskList"></div>
+
+  <div class="done-toggle" id="doneToggle" onclick="toggleDone()">
+    <span class="arrow">▶</span>
+    <span id="doneToggleLabel">完了済みを表示</span>
+  </div>
+  <div class="task-list" id="doneList" style="display:none; margin-top:0.5rem;"></div>
+</div>
+
+<!-- FABs -->
+<button class="fab-scroll" id="fabScroll" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+<button class="fab-ai" id="fabAi" onclick="toggleChat()" title="AIに相談">✦</button>
+
+<!-- AIチャットパネル -->
+<div class="chat-panel" id="chatPanel">
+  <div class="chat-header">
+    <div class="chat-header-icon">✦</div>
+    <h2>AI相談</h2>
+    <div class="chat-header-actions">
+      <button class="btn-icon" id="btnSettings" onclick="toggleSettings()" title="設定">⚙</button>
+      <button class="btn-icon" onclick="toggleChat()" title="閉じる">✕</button>
+    </div>
+  </div>
+
+  <!-- 設定パネル -->
+  <div class="settings-panel" id="settingsPanel">
+    <div class="settings-title">Claude API 設定</div>
+    <div class="settings-row">
+      <input type="password" class="settings-input" id="apiKeyInput" placeholder="sk-ant-..." />
+      <button class="btn-settings-save" onclick="saveApiKey()">保存</button>
+    </div>
+    <div class="settings-note">
+      APIキーは <strong>このブラウザのlocalStorage</strong> にのみ保存されます。<br>
+      外部には送信されません（Anthropic APIへの直接リクエストを除く）。<br>
+      <a href="https://console.anthropic.com" target="_blank" style="color:var(--accent2)">Anthropic Console</a> で取得できます。
+    </div>
+    <div class="api-status no" id="apiStatus">
+      <span class="dot"></span><span id="apiStatusText">APIキー未設定</span>
+    </div>
+  </div>
+
+  <div class="chat-messages" id="chatMessages">
+    <div class="msg assistant">
+      <span class="msg-label">AI</span>
+      <div class="msg-bubble">こんにちは！タスクの整理や優先付け、悩みの相談など、何でも聞いてください。現在のタスク一覧を自動で把握して返答します。</div>
+    </div>
+  </div>
+
+  <div class="chat-input-area">
+    <textarea class="chat-input" id="chatInput" placeholder="メッセージを入力… (Shift+Enter で改行)" rows="1"></textarea>
+    <button class="btn-send" id="btnSend" onclick="sendMessage()">➤</button>
+  </div>
+</div>
+
+<!-- QRコードモーダル -->
+<div class="qr-overlay" id="qrOverlay" onclick="closeQr(event)">
+  <div class="qr-modal">
+    <h2>📱 スマホで開く</h2>
+    <p>QRコードをカメラで読み取ってください</p>
+    <div id="qrCanvas"></div>
+    <div class="qr-url" id="qrUrl"></div>
+    <button class="qr-close" onclick="closeQrDirect()">閉じる</button>
+  </div>
+</div>
+
+<!-- 編集モーダル -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal">
+    <h2>タスクを編集</h2>
+    <label>タイトル</label>
+    <input type="text" id="editTitle" maxlength="120" />
+    <label>カテゴリ</label>
+    <select id="editCategory">
+      <option value="">なし</option>
+      <option value="work">仕事</option>
+      <option value="private">プライベート</option>
+      <option value="study">勉強</option>
+      <option value="health">健康</option>
+      <option value="other">その他</option>
+    </select>
+    <label>優先度</label>
+    <select id="editPriority">
+      <option value="high">高</option>
+      <option value="med">中</option>
+      <option value="low">低</option>
+    </select>
+    <label>日時</label>
+    <div class="modal-row">
+      <input type="date" id="editDue" />
+      <input type="time" id="editTime" />
+    </div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModalDirect()">キャンセル</button>
+      <button class="btn-save" onclick="saveEdit()">保存</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── データ ──────────────────────────────────────────────────
+const STORAGE_KEY    = 'pd_tasks_v2';
+const AI_KEY_STORAGE = 'pd_ai_apikey';
+let tasks = [];
+let editingId = null;
+let showDone  = false;
+let currentFilter = 'all';
+let chatHistory   = [];
+let isStreaming   = false;
+
+const CAT_LABELS = { work:'仕事', private:'プライベート', study:'勉強', health:'健康', other:'その他' };
+const PRI_LABELS = { high:'高', med:'中', low:'低' };
+
+function load() {
+  try { tasks = JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; } catch { tasks = []; }
+}
+function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks)); }
+function genId() { return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+
+// ── 日時ユーティリティ ────────────────────────────────────
+function todayStr() { return new Date().toISOString().slice(0,10); }
+
+function formatDue(date, time) {
+  if (!date) return null;
+  const today = todayStr();
+  const d = new Date(date + 'T00:00:00');
+  const dateLabel = d.toLocaleDateString('ja-JP', { month:'short', day:'numeric' });
+  const timeLabel = time ? ` ${time}` : '';
+  const fullLabel = dateLabel + timeLabel;
+
+  if (date < today) return { text: fullLabel, cls: 'overdue' };
+  if (date === today) return { text: (time ? `今日 ${time}` : '今日'), cls: 'today' };
+  return { text: fullLabel, cls: '' };
+}
+
+// ── フィルター ────────────────────────────────────────────
+function filterTasks(list) {
+  switch(currentFilter) {
+    case 'today':   return list.filter(t => t.due === todayStr());
+    case 'high':    return list.filter(t => t.priority === 'high');
+    case 'work':    return list.filter(t => t.category === 'work');
+    case 'private': return list.filter(t => t.category === 'private');
+    case 'study':   return list.filter(t => t.category === 'study');
+    default:        return list;
+  }
+}
+
+// ── レンダリング ──────────────────────────────────────────
+function render() {
+  renderStats();
+  const pending = tasks.filter(t => !t.done);
+  const done    = tasks.filter(t =>  t.done);
+  const filtered = filterTasks(pending);
+  const listEl = document.getElementById('taskList');
+  listEl.innerHTML = '';
+  if (filtered.length === 0) {
+    listEl.innerHTML = `<div class="empty-state"><div class="emoji">✦</div><p>タスクがありません</p></div>`;
+  } else {
+    filtered.forEach(t => listEl.appendChild(createTaskEl(t)));
+  }
+
+  const doneEl = document.getElementById('doneList');
+  doneEl.innerHTML = '';
+  const filteredDone = filterTasks(done);
+  const toggle = document.getElementById('doneToggle');
+  const toggleLabel = document.getElementById('doneToggleLabel');
+  if (filteredDone.length === 0) {
+    toggle.style.display = 'none';
+  } else {
+    toggle.style.display = 'flex';
+    toggleLabel.textContent = showDone
+      ? `完了済みを隠す（${filteredDone.length}件）`
+      : `完了済みを表示（${filteredDone.length}件）`;
+    toggle.classList.toggle('open', showDone);
+    doneEl.style.display = showDone ? 'flex' : 'none';
+    if (showDone) filteredDone.forEach(t => doneEl.appendChild(createTaskEl(t)));
+  }
+}
+
+function renderStats() {
+  const pending = tasks.filter(t => !t.done).length;
+  const done    = tasks.filter(t =>  t.done).length;
+  const overdue = tasks.filter(t => !t.done && t.due && t.due < todayStr()).length;
+  document.getElementById('stats').innerHTML = `
+    <div class="stat-chip"><span class="dot" style="background:#a78bfa"></span>${pending} 未完了</div>
+    <div class="stat-chip"><span class="dot" style="background:#34d399"></span>${done} 完了</div>
+    ${overdue > 0 ? `<div class="stat-chip"><span class="dot" style="background:#f87171"></span>${overdue} 期限切れ</div>` : ''}
+  `;
+}
+
+function createTaskEl(t) {
+  const div = document.createElement('div');
+  div.className = 'task-item' + (t.done ? ' done' : '');
+  div.dataset.pri = t.priority || 'med';
+  const due = formatDue(t.due, t.time);
+  const catLabel = t.category ? CAT_LABELS[t.category] : '';
+  const priCls = `tag-pri-${t.priority || 'med'}`;
+  div.innerHTML = `
+    <div class="task-check ${t.done ? 'checked' : ''}" onclick="toggleTask('${t.id}')"></div>
+    <div class="task-body">
+      <div class="task-title">${escHtml(t.title)}</div>
+      <div class="task-meta">
+        ${catLabel ? `<span class="tag tag-cat">${catLabel}</span>` : ''}
+        <span class="tag ${priCls}">${PRI_LABELS[t.priority || 'med']}</span>
+        ${due ? `<span class="due-date ${due.cls}">📅 ${due.text}</span>` : ''}
+      </div>
+    </div>
+    <div class="task-actions">
+      <button class="btn-icon" onclick="openEdit('${t.id}')" title="編集">✎</button>
+      <button class="btn-icon del" onclick="deleteTask('${t.id}')" title="削除">✕</button>
+    </div>
+  `;
+  return div;
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── タスク操作 ────────────────────────────────────────────
+function addTask() {
+  const titleEl = document.getElementById('newTitle');
+  const title = titleEl.value.trim();
+  if (!title) { titleEl.focus(); return; }
+  tasks.unshift({
+    id: genId(), title,
+    category: document.getElementById('newCategory').value,
+    priority: document.getElementById('newPriority').value,
+    due:  document.getElementById('newDue').value,
+    time: document.getElementById('newTime').value,
+    done: false,
+    createdAt: new Date().toISOString(),
+  });
+  titleEl.value = '';
+  document.getElementById('newDue').value  = '';
+  document.getElementById('newTime').value = '';
+  document.getElementById('newCategory').value = '';
+  document.getElementById('newPriority').value = 'med';
+  save(); render(); titleEl.focus();
+}
+
+function toggleTask(id) {
+  const t = tasks.find(x => x.id === id);
+  if (!t) return;
+  t.done = !t.done;
+  t.doneAt = t.done ? new Date().toISOString() : null;
+  save(); render();
+}
+
+function deleteTask(id) {
+  tasks = tasks.filter(x => x.id !== id);
+  save(); render();
+}
+
+// ── 編集モーダル ──────────────────────────────────────────
+function openEdit(id) {
+  const t = tasks.find(x => x.id === id);
+  if (!t) return;
+  editingId = id;
+  document.getElementById('editTitle').value    = t.title;
+  document.getElementById('editCategory').value = t.category || '';
+  document.getElementById('editPriority').value = t.priority || 'med';
+  document.getElementById('editDue').value       = t.due  || '';
+  document.getElementById('editTime').value      = t.time || '';
+  document.getElementById('modalOverlay').classList.add('show');
+  setTimeout(() => document.getElementById('editTitle').focus(), 50);
+}
+
+function closeModal(e) { if (e.target.id === 'modalOverlay') closeModalDirect(); }
+function closeModalDirect() {
+  document.getElementById('modalOverlay').classList.remove('show');
+  editingId = null;
+}
+
+function saveEdit() {
+  const t = tasks.find(x => x.id === editingId);
+  if (!t) return;
+  t.title    = document.getElementById('editTitle').value.trim() || t.title;
+  t.category = document.getElementById('editCategory').value;
+  t.priority = document.getElementById('editPriority').value;
+  t.due      = document.getElementById('editDue').value;
+  t.time     = document.getElementById('editTime').value;
+  save(); render(); closeModalDirect();
+}
+
+// ── フィルター ────────────────────────────────────────────
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentFilter = btn.dataset.filter;
+    render();
+  });
+});
+
+function toggleDone() { showDone = !showDone; render(); }
+
+// ── キーボード ────────────────────────────────────────────
+document.getElementById('newTitle').addEventListener('keydown', e => {
+  if (e.key === 'Enter') addTask();
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { closeModalDirect(); }
+});
+
+// ── スクロール ────────────────────────────────────────────
+window.addEventListener('scroll', () => {
+  document.getElementById('fabScroll').classList.toggle('show', window.scrollY > 300);
+});
+
+// ── 日付ラベル ────────────────────────────────────────────
+function initDateLabel() {
+  const d = new Date();
+  document.getElementById('dateLabel').textContent =
+    d.toLocaleDateString('ja-JP', { year:'numeric', month:'long', day:'numeric', weekday:'short' });
+}
+
+// ── AI チャット ───────────────────────────────────────────
+let chatOpen = false;
+let settingsOpen = false;
+
+function toggleChat() {
+  chatOpen = !chatOpen;
+  document.getElementById('chatPanel').classList.toggle('open', chatOpen);
+  document.getElementById('fabAi').classList.toggle('open', chatOpen);
+  if (chatOpen) {
+    setTimeout(() => document.getElementById('chatInput').focus(), 300);
+    updateApiStatus();
+  }
+}
+
+function toggleSettings() {
+  settingsOpen = !settingsOpen;
+  document.getElementById('settingsPanel').classList.toggle('show', settingsOpen);
+  if (settingsOpen) {
+    const key = localStorage.getItem(AI_KEY_STORAGE) || '';
+    document.getElementById('apiKeyInput').value = key ? '••••••••' + key.slice(-4) : '';
+  }
+}
+
+function saveApiKey() {
+  const raw = document.getElementById('apiKeyInput').value.trim();
+  if (!raw || raw.startsWith('••')) return;
+  localStorage.setItem(AI_KEY_STORAGE, raw);
+  updateApiStatus();
+  document.getElementById('settingsPanel').classList.remove('show');
+  settingsOpen = false;
+  appendSystemMsg('APIキーを保存しました。何でも聞いてください！');
+}
+
+function updateApiStatus() {
+  const key = localStorage.getItem(AI_KEY_STORAGE);
+  const el  = document.getElementById('apiStatus');
+  const txt = document.getElementById('apiStatusText');
+  if (key) {
+    el.className = 'api-status ok';
+    txt.textContent = 'APIキー設定済み';
+  } else {
+    el.className = 'api-status no';
+    txt.textContent = 'APIキー未設定 — ⚙ から設定してください';
+  }
+}
+
+function buildSystemPrompt() {
+  const pending = tasks.filter(t => !t.done);
+  const done    = tasks.filter(t =>  t.done);
+  const now     = new Date().toLocaleString('ja-JP');
+
+  const taskLines = pending.map(t => {
+    const parts = [`・${t.title}`];
+    if (t.priority) parts.push(`[${PRI_LABELS[t.priority]}優先]`);
+    if (t.category) parts.push(`[${CAT_LABELS[t.category] || t.category}]`);
+    if (t.due) parts.push(`期日: ${t.due}${t.time ? ' ' + t.time : ''}`);
+    return parts.join(' ');
+  }).join('\n') || '（なし）';
+
+  return `あなたはタスク管理・生産性のパートナーAIです。ユーザーのタスクを把握し、優先付けや相談に応じます。
+
+現在時刻: ${now}
+
+【未完了タスク (${pending.length}件)】
+${taskLines}
+
+【完了済み: ${done.length}件】
+
+## 行動指針
+- 友人のように親しみやすく、的確に返答する
+- タスクの優先順位付け・分解・スケジュール提案を得意とする
+- 「何から始めるか」「これは後回しでいいか」などの判断をサポートする
+- 回答は簡潔に。箇条書きを適宜使う
+- 日本語で返答する`;
+}
+
+async function sendMessage() {
+  if (isStreaming) return;
+  const input = document.getElementById('chatInput');
+  const msg = input.value.trim();
+  if (!msg) return;
+
+  const apiKey = localStorage.getItem(AI_KEY_STORAGE);
+  if (!apiKey) {
+    appendSystemMsg('APIキーが設定されていません。⚙ ボタンから設定してください。');
+    toggleSettings();
+    return;
+  }
+
+  input.value = '';
+  autoResizeTextarea(input);
+
+  appendMsg('user', msg);
+  chatHistory.push({ role: 'user', content: msg });
+
+  isStreaming = true;
+  document.getElementById('btnSend').disabled = true;
+
+  const typingEl = appendTyping();
+  scrollChat();
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true',
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 1024,
+        stream: true,
+        system: buildSystemPrompt(),
+        messages: chatHistory,
+      }),
+    });
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err.error?.message || `HTTP ${response.status}`);
+    }
+
+    typingEl.remove();
+    const bubbleEl = appendMsg('assistant', '');
+    const textEl = bubbleEl.querySelector('.msg-bubble');
+    let fullText = '';
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buf = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buf += decoder.decode(value, { stream: true });
+      const lines = buf.split('\n');
+      buf = lines.pop();
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        const data = line.slice(6).trim();
+        if (data === '[DONE]') continue;
+        try {
+          const ev = JSON.parse(data);
+          if (ev.type === 'content_block_delta' && ev.delta?.type === 'text_delta') {
+            fullText += ev.delta.text;
+            textEl.textContent = fullText;
+            scrollChat();
+          }
+        } catch {}
+      }
+    }
+
+    chatHistory.push({ role: 'assistant', content: fullText });
+
+  } catch (e) {
+    typingEl?.remove();
+    appendSystemMsg(`エラー: ${e.message}`);
+  } finally {
+    isStreaming = false;
+    document.getElementById('btnSend').disabled = false;
+    input.focus();
+  }
+}
+
+function appendMsg(role, text) {
+  const el = document.createElement('div');
+  el.className = `msg ${role}`;
+  el.innerHTML = `
+    <span class="msg-label">${role === 'user' ? 'あなた' : 'AI'}</span>
+    <div class="msg-bubble">${escHtml(text)}</div>
+  `;
+  document.getElementById('chatMessages').appendChild(el);
+  scrollChat();
+  return el;
+}
+
+function appendTyping() {
+  const el = document.createElement('div');
+  el.className = 'msg assistant';
+  el.innerHTML = `
+    <span class="msg-label">AI</span>
+    <div class="msg-bubble">
+      <span class="typing-dot"></span>
+      <span class="typing-dot"></span>
+      <span class="typing-dot"></span>
+    </div>
+  `;
+  document.getElementById('chatMessages').appendChild(el);
+  scrollChat();
+  return el;
+}
+
+function appendSystemMsg(text) {
+  const el = document.createElement('div');
+  el.style.cssText = 'text-align:center;font-size:0.75rem;color:var(--text-muted);padding:0.25rem 0;';
+  el.textContent = text;
+  document.getElementById('chatMessages').appendChild(el);
+  scrollChat();
+}
+
+function scrollChat() {
+  const el = document.getElementById('chatMessages');
+  el.scrollTop = el.scrollHeight;
+}
+
+// ── チャット入力 ──────────────────────────────────────────
+const chatInput = document.getElementById('chatInput');
+
+chatInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+});
+
+chatInput.addEventListener('input', () => autoResizeTextarea(chatInput));
+
+function autoResizeTextarea(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+
+// ── QRコード ──────────────────────────────────────────────
+function openQr() {
+  const url = location.href;
+  document.getElementById('qrUrl').textContent = url;
+  const container = document.getElementById('qrCanvas');
+  container.innerHTML = '';
+  QRCode.toCanvas(url, { width: 220, margin: 1, color: { dark: '#000', light: '#fff' } }, (err, canvas) => {
+    if (!err) container.appendChild(canvas);
+  });
+  document.getElementById('qrOverlay').classList.add('show');
+}
+
+function closeQr(e) { if (e.target.id === 'qrOverlay') closeQrDirect(); }
+function closeQrDirect() { document.getElementById('qrOverlay').classList.remove('show'); }
+
+// ── 初期化 ────────────────────────────────────────────────
+load();
+initDateLabel();
+render();
+updateApiStatus();
+</script>
+</body>
+</html>
