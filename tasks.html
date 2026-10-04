@@ -7,7 +7,6 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet" />
-  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
   <style>
     :root {
       --bg: #0a0a0f;
@@ -729,87 +728,6 @@
       box-shadow: 0 0 12px var(--accent-glow);
     }
 
-    /* ── QRコードモーダル ── */
-    .qr-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.75);
-      backdrop-filter: blur(6px);
-      z-index: 300;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 1rem;
-    }
-    .qr-overlay.show { display: flex; }
-
-    .qr-modal {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 1.75rem 1.5rem;
-      width: 100%;
-      max-width: 320px;
-      text-align: center;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.6);
-      animation: fadeIn 0.2s ease;
-    }
-
-    .qr-modal h2 {
-      font-size: 1rem;
-      margin-bottom: 0.4rem;
-    }
-
-    .qr-modal p {
-      font-size: 0.78rem;
-      color: var(--text-muted);
-      margin-bottom: 1.25rem;
-    }
-
-    #qrCanvas {
-      background: #fff;
-      border-radius: var(--radius-sm);
-      padding: 12px;
-      display: inline-block;
-    }
-
-    .qr-url {
-      margin-top: 1rem;
-      font-size: 0.72rem;
-      color: var(--text-muted);
-      word-break: break-all;
-      background: var(--surface2);
-      border-radius: var(--radius-sm);
-      padding: 0.5rem 0.75rem;
-    }
-
-    .qr-close {
-      margin-top: 1rem;
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      color: var(--text-muted);
-      font-family: inherit;
-      font-size: 0.85rem;
-      padding: 0.5rem 1.5rem;
-      cursor: pointer;
-      width: 100%;
-    }
-
-    .btn-qr {
-      background: transparent;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      color: var(--text-muted);
-      font-size: 0.85rem;
-      padding: 0.4rem 0.7rem;
-      cursor: pointer;
-      transition: all 0.15s;
-      font-family: inherit;
-      margin-left: auto;
-    }
-    .btn-qr:hover { color: var(--text); border-color: var(--accent); }
-
     /* ── レスポンシブ ── */
     @media (max-width: 480px) {
       .input-row { flex-wrap: wrap; }
@@ -831,7 +749,6 @@
       <h1>タスク管理</h1>
       <div class="date-label" id="dateLabel"></div>
     </div>
-    <button class="btn-qr" onclick="openQr()" title="QRコードでスマホに共有">📱 QR</button>
   </div>
 
   <div class="stats" id="stats"></div>
@@ -925,16 +842,6 @@
   </div>
 </div>
 
-<!-- QRコードモーダル -->
-<div class="qr-overlay" id="qrOverlay" onclick="closeQr(event)">
-  <div class="qr-modal">
-    <h2>📱 スマホで開く</h2>
-    <p>QRコードをカメラで読み取ってください</p>
-    <div id="qrCanvas"></div>
-    <div class="qr-url" id="qrUrl"></div>
-    <button class="qr-close" onclick="closeQrDirect()">閉じる</button>
-  </div>
-</div>
 
 <!-- 編集モーダル -->
 <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
@@ -1410,21 +1317,6 @@ function autoResizeTextarea(el) {
   el.style.height = 'auto';
   el.style.height = Math.min(el.scrollHeight, 120) + 'px';
 }
-
-// ── QRコード ──────────────────────────────────────────────
-function openQr() {
-  const url = location.href;
-  document.getElementById('qrUrl').textContent = url;
-  const container = document.getElementById('qrCanvas');
-  container.innerHTML = '';
-  QRCode.toCanvas(url, { width: 220, margin: 1, color: { dark: '#000', light: '#fff' } }, (err, canvas) => {
-    if (!err) container.appendChild(canvas);
-  });
-  document.getElementById('qrOverlay').classList.add('show');
-}
-
-function closeQr(e) { if (e.target.id === 'qrOverlay') closeQrDirect(); }
-function closeQrDirect() { document.getElementById('qrOverlay').classList.remove('show'); }
 
 // ── 初期化 ────────────────────────────────────────────────
 load();

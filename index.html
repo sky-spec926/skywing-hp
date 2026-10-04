@@ -11,19 +11,19 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
 
-    /* ===== カラーパレット（青系・信頼感） ===== */
+    /* ===== カラーパレット（爽やかな空色・ホワイト基調） ===== */
     :root {
-      --bg:           #070d1a;
-      --surface:      #0d1829;
-      --surface2:     #132238;
-      --border:       rgba(59,130,246,0.15);
-      --primary:      #3b82f6;
-      --primary-dark: #1d4ed8;
-      --primary-light:#60a5fa;
+      --bg:           #f2f9ff;
+      --surface:      #ffffff;
+      --surface2:     #e9f3fe;
+      --border:       rgba(2,132,199,0.16);
+      --primary:      #0ea5e9;
+      --primary-dark: #0369a1;
+      --primary-light:#0284c7;
       --accent:       #06b6d4;
-      --text:         #f0f6ff;
-      --text-2:       #94a3b8;
-      --muted:        #475569;
+      --text:         #0f2b43;
+      --text-2:       #51687d;
+      --muted:        #8ba0b2;
     }
 
     body {
@@ -91,7 +91,7 @@
     .btn-primary:hover { box-shadow: 0 8px 28px rgba(59,130,246,0.5); }
     .btn-outline {
       background: transparent;
-      border: 1px solid rgba(255,255,255,0.15);
+      border: 1px solid rgba(2,132,199,0.3);
       color: var(--text);
     }
     .btn-outline:hover { border-color: var(--primary-light); color: var(--primary-light); }
@@ -106,9 +106,10 @@
       transition: background 0.3s, backdrop-filter 0.3s, border-bottom 0.3s;
     }
     header.scrolled {
-      background: rgba(7,13,26,0.85);
+      background: rgba(255,255,255,0.85);
       backdrop-filter: blur(16px);
       border-bottom: 1px solid var(--border);
+      box-shadow: 0 4px 24px rgba(2,132,199,0.08);
     }
     .header-inner {
       display: flex;
@@ -256,7 +257,7 @@
     .stat-num {
       font-size: 2rem;
       font-weight: 800;
-      background: linear-gradient(135deg, #fff, var(--primary-light));
+      background: linear-gradient(135deg, var(--primary), var(--accent));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
@@ -295,9 +296,9 @@
       transition: opacity 0.3s;
     }
     .service-card:hover {
-      border-color: rgba(59,130,246,0.4);
+      border-color: rgba(14,165,233,0.45);
       transform: translateY(-4px);
-      box-shadow: 0 24px 48px rgba(0,0,0,0.4);
+      box-shadow: 0 24px 48px rgba(2,132,199,0.16);
     }
     .service-card:hover::before { opacity: 1; }
     .service-icon {
@@ -443,8 +444,8 @@
 
     /* ===== 採用バナー ===== */
     .recruit-banner {
-      background: linear-gradient(135deg, rgba(29,78,216,0.2), rgba(6,182,212,0.1));
-      border: 1px solid rgba(59,130,246,0.25);
+      background: linear-gradient(135deg, rgba(14,165,233,0.14), rgba(6,182,212,0.1));
+      border: 1px solid rgba(14,165,233,0.25);
       border-radius: 20px;
       padding: 3.5rem;
       text-align: center;
@@ -497,8 +498,8 @@
     .form-group select,
     .form-group textarea {
       width: 100%;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.1);
+      background: #f2f9ff;
+      border: 1px solid rgba(2,132,199,0.22);
       border-radius: 10px;
       padding: 12px 16px;
       color: var(--text);
@@ -511,7 +512,7 @@
     .form-group select:focus,
     .form-group textarea:focus { border-color: var(--primary); }
     .form-group textarea { resize: vertical; min-height: 120px; }
-    .form-group select option { background: #0d1829; color: var(--text); }
+    .form-group select option { background: #ffffff; color: var(--text); }
 
     /* ===== 実績カード ===== */
     .results-grid {
@@ -565,8 +566,8 @@
     .pricing-card:hover { border-color: rgba(59,130,246,0.4); transform: translateY(-4px); }
     /* おすすめカードは枠を強調 */
     .pricing-card.featured {
-      border-color: rgba(59,130,246,0.45);
-      background: linear-gradient(160deg, rgba(29,78,216,0.15), rgba(7,13,26,0) 60%), var(--surface);
+      border-color: rgba(14,165,233,0.5);
+      background: linear-gradient(160deg, rgba(14,165,233,0.12), rgba(255,255,255,0) 60%), var(--surface);
     }
     .pricing-badge {
       position: absolute;
@@ -587,7 +588,7 @@
       font-weight: 800;
       line-height: 1;
       margin-bottom: 0.25rem;
-      background: linear-gradient(135deg, #fff, var(--primary-light));
+      background: linear-gradient(135deg, var(--primary), var(--accent));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
@@ -655,7 +656,7 @@
         flex-direction: column;
         position: fixed;
         top: 0; left: 0; right: 0; bottom: 0;
-        background: rgba(7,13,26,0.97);
+        background: rgba(255,255,255,0.97);
         backdrop-filter: blur(16px);
         align-items: center;
         justify-content: center;
@@ -740,9 +741,9 @@
       width: min(380px, calc(100vw - 32px));
       height: min(560px, calc(100vh - 140px));
       background: var(--surface);
-      border: 1px solid rgba(59,130,246,0.25);
+      border: 1px solid rgba(14,165,233,0.25);
       border-radius: 20px;
-      box-shadow: 0 24px 64px rgba(0,0,0,0.6);
+      box-shadow: 0 24px 64px rgba(2,132,199,0.22);
       display: flex;
       flex-direction: column;
       overflow: hidden;
@@ -763,10 +764,12 @@
       align-items: center;
       justify-content: space-between;
       padding: 14px 18px;
-      background: linear-gradient(135deg, var(--primary-dark), var(--surface2));
-      border-bottom: 1px solid rgba(59,130,246,0.2);
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      border-bottom: 1px solid rgba(14,165,233,0.2);
       flex-shrink: 0;
     }
+    .chat-header .chat-name { color: #fff; }
+    .chat-header .chat-status { color: rgba(255,255,255,0.85); }
     .chat-header-info { display: flex; align-items: center; gap: 10px; }
     .chat-avatar {
       width: 38px;
@@ -789,14 +792,14 @@
     .chat-close {
       background: transparent;
       border: none;
-      color: var(--text-2);
+      color: rgba(255,255,255,0.8);
       font-size: 1rem;
       cursor: pointer;
       padding: 4px 8px;
       border-radius: 6px;
       transition: color 0.15s, background 0.15s;
     }
-    .chat-close:hover { color: var(--text); background: rgba(255,255,255,0.08); }
+    .chat-close:hover { color: #fff; background: rgba(255,255,255,0.2); }
 
     .chat-messages {
       flex: 1;
@@ -867,8 +870,8 @@
     }
     .chat-input {
       flex: 1;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(59,130,246,0.2);
+      background: #f2f9ff;
+      border: 1px solid rgba(14,165,233,0.25);
       border-radius: 10px;
       padding: 9px 14px;
       color: var(--text);
@@ -1570,7 +1573,8 @@
       } catch (err) {
         typingEl.remove();
         /* サーバー未起動時は案内メッセージ */
-        addBubble('bot', 'チャットサーバーに接続できませんでした。サーバーを起動してからお試しください。\n（node server.js）');
+        addBubble('bot', '申し訳ありません。ただいまデモ用のサーバーを停止しております。\nこのチャットはClaude APIとSSEストリーミングで実装したもので、実装内容についてのご質問には'
+                 + 'お問い合わせから直接お答えできます。');
         console.error('チャット送信エラー:', err);
       } finally {
         isStreaming = false;
