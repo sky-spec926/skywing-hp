@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>シミズツバサ｜AI受託ポートフォリオ</title>
+<!-- ===== 使い方 =====
+  1. 【ここを埋める】の箇所を自分の情報・URLに書き換える
+  2. そのままブラウザで開いて確認 → Netlify/Vercel/GitHub Pages に置けば公開URLになる
+  3. 提案文に「実物はこちら → 公開URL」として貼る
+================== -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #f2f9ff;
+    --surface: #ffffff;
+    --surface2: #e9f3fe;
+    --border: rgba(2,132,199,0.16);
+    --line: rgba(2,132,199,0.18);
+    --text: #0f2b43;
+    --muted: #51687d;
+    --accent: #0ea5e9;
+    --accent2: #06b6d4;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Space Grotesk", "Noto Sans JP", sans-serif;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+  /* グリッド背景 */
+  body::before {
+    content: "";
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(rgba(14,165,233,0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(6,182,212,0.06) 1px, transparent 1px);
+    background-size: 48px 48px;
+    z-index: 0;
+    pointer-events: none;
+  }
+  .wrap { position: relative; z-index: 1; max-width: 1000px; margin: 0 auto; padding: 0 clamp(1.25rem, 4vw, 2rem); }
+
+  /* ===== ヘッダー ===== */
+  header { padding: clamp(4rem, 12vw, 7rem) 0 clamp(3rem, 8vw, 5rem); }
+  .badge {
+    display: inline-block;
+    font-size: 0.8rem; letter-spacing: 0.08em;
+    color: var(--accent2);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 0.35rem 0.9rem;
+    margin-bottom: 1.5rem;
+    background: rgba(6,182,212,0.06);
+  }
+  h1 {
+    font-size: clamp(2rem, 7vw, 3.4rem);
+    font-weight: 700; line-height: 1.2;
+    letter-spacing: -0.02em;
+    margin-bottom: 1.2rem;
+  }
+  h1 .grad {
+    background: linear-gradient(120deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .lead { font-size: clamp(1rem, 2.5vw, 1.2rem); color: var(--muted); max-width: 42rem; }
+  .cta-row { display: flex; flex-wrap: wrap; gap: 0.8rem; margin-top: 2rem; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    padding: 0.8rem 1.5rem; border-radius: 10px;
+    font-weight: 500; text-decoration: none; font-size: 0.95rem;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .btn-primary {
+    background: linear-gradient(120deg, var(--accent), var(--accent2));
+    color: #fff;
+    box-shadow: 0 8px 30px rgba(14,165,233,0.3);
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(14,165,233,0.45); }
+  .btn-ghost { border: 1px solid var(--line); color: var(--text); background: var(--surface); }
+  .btn-ghost:hover { border-color: var(--accent2); transform: translateY(-2px); }
+
+  /* ===== セクション共通 ===== */
+  section { padding: clamp(2.5rem, 7vw, 4rem) 0; }
+  .sec-title { font-size: clamp(1.4rem, 4vw, 2rem); font-weight: 700; margin-bottom: 0.5rem; }
+  .sec-sub { color: var(--muted); margin-bottom: 2rem; font-size: 0.95rem; }
+
+  /* ===== できること ===== */
+  .services { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: 1rem; }
+  .service {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 14px; padding: 1.5rem;
+    transition: border-color 0.2s ease, transform 0.2s ease;
+  }
+  .service:hover { border-color: var(--accent); transform: translateY(-3px); }
+  .service .ico { font-size: 1.6rem; margin-bottom: 0.7rem; }
+  .service h3 { font-size: 1.05rem; margin-bottom: 0.4rem; }
+  .service p { color: var(--muted); font-size: 0.9rem; }
+  .service .price { display: inline-block; margin-top: 0.8rem; font-size: 0.85rem; color: var(--accent2); font-weight: 500; }
+
+  /* ===== 実績 ===== */
+  .works { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: 1.2rem; }
+  .work {
+    background: linear-gradient(160deg, var(--surface2), var(--surface));
+    border: 1px solid var(--line); border-radius: 16px;
+    padding: 1.6rem; display: flex; flex-direction: column;
+    transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .work:hover { border-color: var(--accent2); transform: translateY(-4px); box-shadow: 0 16px 50px rgba(6,182,212,0.12); }
+  .work .tag { font-size: 0.72rem; letter-spacing: 0.06em; color: var(--accent2); text-transform: uppercase; margin-bottom: 0.7rem; }
+  .work h3 { font-size: 1.15rem; margin-bottom: 0.6rem; }
+  .work p { color: var(--muted); font-size: 0.9rem; flex: 1; }
+  .work .stack { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 1rem 0; }
+  .work .chip { font-size: 0.72rem; padding: 0.25rem 0.6rem; border-radius: 6px; background: rgba(14,165,233,0.12); color: #0369a1; border: 1px solid rgba(14,165,233,0.3); }
+  .work a { color: var(--accent2); text-decoration: none; font-size: 0.88rem; font-weight: 500; }
+  .work a:hover { text-decoration: underline; }
+
+  /* ===== 強み ===== */
+  .why { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 1rem; }
+  .why-item { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 1.3rem; }
+  .why-item .n { font-family: "Space Grotesk"; font-size: 1.6rem; font-weight: 700; color: var(--accent); }
+  .why-item h3 { font-size: 1rem; margin: 0.3rem 0 0.4rem; }
+  .why-item p { color: var(--muted); font-size: 0.88rem; }
+
+  /* ===== 進め方 ===== */
+  .flow { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap: 1rem; counter-reset: step; }
+  .step { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 1.3rem; position: relative; }
+  .step::before {
+    counter-increment: step; content: counter(step);
+    position: absolute; top: -0.8rem; left: 1.2rem;
+    width: 1.8rem; height: 1.8rem; border-radius: 50%;
+    background: linear-gradient(120deg, var(--accent), var(--accent2));
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 0.9rem; color: #fff;
+  }
+  .step h3 { font-size: 1rem; margin: 0.6rem 0 0.3rem; }
+  .step p { color: var(--muted); font-size: 0.85rem; }
+
+  /* ===== CTA ===== */
+  .final {
+    text-align: center;
+    background: linear-gradient(160deg, rgba(14,165,233,0.12), rgba(6,182,212,0.08));
+    border: 1px solid var(--line); border-radius: 20px;
+    padding: clamp(2.5rem, 8vw, 4rem) 1.5rem;
+    margin-bottom: 3rem;
+  }
+  .final h2 { font-size: clamp(1.5rem, 5vw, 2.2rem); margin-bottom: 0.8rem; }
+  .final p { color: var(--muted); margin-bottom: 1.8rem; }
+
+  footer { text-align: center; padding: 2rem 0 3rem; color: var(--muted); font-size: 0.85rem; }
+
+  @media (max-width: 480px) {
+    .service, .work, .why-item, .step { padding: 1.2rem; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ===== ヘッダー ===== -->
+  <header>
+    <span class="badge">AI ENGINEER · 生成AI受託</span>
+    <h1>AIで、<span class="grad">業務の面倒</span>を<br />仕組みに変える。</h1>
+    <p class="lead">
+      ChatGPT / Claude を使ったチャットボット・業務自動化ツールを、企画から実装・運用まで一人で完結。
+      「使ってみたいけど何から始めれば」を、動くものに変えてお渡しします。
+    </p>
+    <div class="cta-row">
+      <a class="btn btn-primary" href="#contact">相談する →</a>
+      <a class="btn btn-ghost" href="#works">実績を見る</a>
+    </div>
+  </header>
+
+  <!-- ===== できること ===== -->
+  <section id="services">
+    <h2 class="sec-title">できること</h2>
+    <p class="sec-sub">小さく始めて、効果が出たら継続・拡張。まずは一番効く所から。</p>
+    <div class="services">
+      <div class="service">
+        <div class="ico">🤖</div>
+        <h3>チャットボット構築</h3>
+        <p>社内問い合わせ・FAQ・接客対応を自動化。LINE / Web 埋め込み、API連携まで対応。</p>
+        <span class="price">2.5万円〜</span>
+      </div>
+      <div class="service">
+        <div class="ico">⚙️</div>
+        <h3>業務自動化</h3>
+        <p>毎日の手作業（転記・集計・通知）を GAS / スプレッドシート / AI で自動化。</p>
+        <span class="price">3,000円〜</span>
+      </div>
+      <div class="service">
+        <div class="ico">✨</div>
+        <h3>GPTs / カスタムAI作成</h3>
+        <p>業務専用のChatGPT（GPTs）を設計。社内の知識を組み込んだ専用アシスタントに。</p>
+        <span class="price">1万円〜</span>
+      </div>
+      <div class="service">
+        <div class="ico">🧭</div>
+        <h3>AI導入支援</h3>
+        <p>「どこにAIが効くか」の棚卸し、業務別プロンプト集、社内マニュアル作成。</p>
+        <span class="price">5,000円〜</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 実績 ===== -->
+  <section id="works">
+    <h2 class="sec-title">制作実績</h2>
+    <p class="sec-sub">すべて自分で企画・開発したもの。動くものでご判断ください。</p>
+    <div class="works">
+
+      <div class="work">
+        <span class="tag">音響合成 · 動画自動生成 · Python</span>
+        <h3>環境音BGMチャンネル（3か月で103本を自動生成）</h3>
+        <p>外部素材を一切使わず、雨・焚き火・虫の声などの環境音を <b>Python でゼロから合成</b>。
+        画像と音源から 1時間／3時間／5時間の動画を一括生成する仕組みまで作り、
+        <b>3か月で103本を公開</b>しました。サムネイルの自動生成、再生データに基づくA/Bテストまで運用しています。</p>
+        <div class="stack"><span class="chip">Python</span><span class="chip">NumPy</span><span class="chip">ffmpeg</span><span class="chip">Pillow</span><span class="chip">自動化パイプライン</span></div>
+        <a href="https://www.youtube.com/@nemurinooto-bgm" target="_blank" rel="noopener">実物を見る →</a>
+      </div>
+
+      <div class="work">
+        <span class="tag">EC · 商品化</span>
+        <h3>自作音源の素材販売（BOOTH出店）</h3>
+        <p>上記で合成した音源を、<b>著作権フリーの素材集として商品化</b>。
+        長尺版への変換・利用規約の作成・ZIP化までをスクリプトで自動化し、6商品・24テーマを出品しました。
+        <b>「作る」だけでなく「売る形にする」ところまで</b>自分で通しています。</p>
+        <div class="stack"><span class="chip">商品設計</span><span class="chip">自動パッケージング</span><span class="chip">EC運用</span></div>
+        <a href="https://nemurinooto.booth.pm/" target="_blank" rel="noopener">ショップを見る →</a>
+      </div>
+
+      <div class="work">
+        <span class="tag">Chatbot · Claude API</span>
+        <h3>ストリーミング対応 AIチャットボット</h3>
+        <p>Claude API と SSE（ストリーミング）を実装し、タイプライター風に応答するチャットボット。自己紹介サイトに統合して公開中。</p>
+        <div class="stack"><span class="chip">Claude API</span><span class="chip">SSE</span><span class="chip">JavaScript</span></div>
+        <a href="https://github.com/sky-spec926/skywing-hp/blob/main/server.js" target="_blank" rel="noopener">ソースコードを見る →</a>
+      </div>
+
+
+      <div class="work">
+        <span class="tag">動画自動生成 · Remotion</span>
+        <h3>星座占い動画の自動生成</h3>
+        <p>Remotionを使い、データから占い動画をプログラムで自動生成するパイプラインを構築。量産に対応。</p>
+        <div class="stack"><span class="chip">Remotion</span><span class="chip">React</span><span class="chip">自動化</span></div>
+        <a href="【ここを埋める：動画サンプルのURL】" target="_blank" rel="noopener">サンプルを見る →</a>
+      </div>
+
+      <div class="work">
+        <span class="tag">Web App</span>
+        <h3>タスク管理アプリ</h3>
+        <p>日々の業務を整理するシンプルなタスク管理ツールを自作。UI設計から実装まで対応可能なことの証明。</p>
+        <div class="stack"><span class="chip">HTML/CSS/JS</span><span class="chip">UI設計</span></div>
+        <a href="https://sky-spec926.github.io/skywing-hp/tasks.html" target="_blank" rel="noopener">使ってみる →</a>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ===== 選ばれる理由 ===== -->
+  <section id="why">
+    <h2 class="sec-title">選ばれる理由</h2>
+    <p class="sec-sub"></p>
+    <div class="why">
+      <div class="why-item">
+        <div class="n">01</div>
+        <h3>実物で語れる</h3>
+        <p>「できます」ではなく、動くチャットボット・自動化ツールを実際に公開しています。</p>
+      </div>
+      <div class="why-item">
+        <div class="n">02</div>
+        <h3>透明なAI活用</h3>
+        <p>AIをどう使うかを最初にお伝えします。品質は人の目で担保するのでご安心を。</p>
+      </div>
+      <div class="why-item">
+        <div class="n">03</div>
+        <h3>納品後も伴走</h3>
+        <p>作って終わりにせず、運用・改善・追加の自動化まで月額でサポートできます。</p>
+      </div>
+      <div class="why-item">
+        <div class="n">04</div>
+        <h3>スピード</h3>
+        <p>AIを開発自体にも活用し、見積り・初稿・修正をスピーディーにお返しします。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 進め方 ===== -->
+  <section id="flow">
+    <h2 class="sec-title">進め方</h2>
+    <p class="sec-sub">まずは無料ヒアリングから。ご相談だけでも歓迎です。</p>
+    <div class="flow">
+      <div class="step"><h3>ヒアリング</h3><p>用途・課題・連携先を15〜30分で確認（無料）。</p></div>
+      <div class="step"><h3>提案・見積</h3><p>最適な構成と料金をご提示。</p></div>
+      <div class="step"><h3>制作・テスト</h3><p>実装し、動作を確認しながら調整。</p></div>
+      <div class="step"><h3>納品・運用</h3><p>納品後の修正対応、継続サポートも。</p></div>
+    </div>
+  </section>
+
+  <!-- ===== CTA ===== -->
+  <section id="contact">
+    <div class="final">
+      <h2>「これ、自動化できる?」から始めましょう</h2>
+      <p>今の手作業や「AIでやってみたいこと」を教えてください。最適な形をご提案します。</p>
+      <div class="cta-row" style="justify-content:center;">
+        <a class="btn btn-primary" href="https://crowdworks.jp/public/employees/6674768" target="_blank" rel="noopener">相談する →</a>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    © 2026 シミズツバサ｜AI Engineer ／ Powered by ChatGPT · Claude
+  </footer>
+
+</div>
+</body>
+</html>
