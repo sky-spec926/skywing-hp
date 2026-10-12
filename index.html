@@ -1606,6 +1606,11 @@
 
     sendBtn.addEventListener('click', sendMessage);
     input.addEventListener('keydown', e => {
+      /* 🔴 日本語入力の変換確定でEnterを押したときに送信してしまうのを防ぐ。
+         「あめのおと」→変換→Enterで確定、のつもりが送信されていた（2026/10/12 修正）。
+         変換中かどうかは isComposing で分かる。
+         Safari など古い環境では keyCode 229 でしか判定できないので両方見る。 */
+      if (e.isComposing || e.keyCode === 229) return;
       if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
     });
   </script>
