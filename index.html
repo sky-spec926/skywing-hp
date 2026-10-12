@@ -1528,6 +1528,14 @@
       /* タイピング表示 */
       const typingEl = showTyping();
 
+      /* ⚠️ 無料プランのサーバーは、しばらく使われていないと眠っている。
+         起きるまで1分近くかかるので、黙って待たせない（待っているだけで「壊れている」と思われる） */
+      let wakingEl = null;
+      const wakingTimer = setTimeout(() => {
+        wakingEl = addBubble('bot', 'サーバーを起動しています。初回は1分ほどお待ちください…');
+        scrollToBottom();
+      }, 4000);
+
       /* SSEストリーミング */
       try {
         const res = await fetch(API_URL, {
@@ -1535,6 +1543,17 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ messages: history }),
         });
+
+        clearTimeout(wakingTimer);
+        if (wakingEl) { wakingEl.remove(); wakingEl = null; }
+
+        /* 使いすぎの上限に当たったときは、理由をそのまま伝える */
+        if (res.status === 429) {
+          const info = await res.json().catch(() => ({}));
+          typingEl.remove();
+          addBubble('bot', info.error || '少し間を空けてからお試しください。');
+          return;
+        }
 
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
@@ -1571,10 +1590,12 @@
           }
         }
       } catch (err) {
+        clearTimeout(wakingTimer);
+        if (wakingEl) wakingEl.remove();
         typingEl.remove();
-        /* サーバー未起動時は案内メッセージ */
-        addBubble('bot', '申し訳ありません。ただいまデモ用のサーバーを停止しております。\nこのチャットはClaude APIとSSEストリーミングで実装したもので、実装内容についてのご質問には'
-                 + 'お問い合わせから直接お答えできます。');
+        /* つながらないときの案内。開発者向けの言葉は使わない */
+        addBubble('bot', '申し訳ありません。ただいま応答できませんでした。\n'
+                 + '少し時間をおいてもう一度お試しいただくか、お問い合わせから直接ご連絡ください。');
         console.error('チャット送信エラー:', err);
       } finally {
         isStreaming = false;
