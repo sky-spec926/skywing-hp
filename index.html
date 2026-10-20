@@ -839,6 +839,15 @@
       border-bottom-left-radius: 4px;
       border: 1px solid rgba(59,130,246,0.15);
     }
+    /* 答えの中の太字とリンク */
+    .bubble-content strong { font-weight: 700; }
+    .chat-bubble.bot .bubble-content a {
+      color: var(--primary);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      word-break: break-all;
+    }
+    .chat-bubble.bot .bubble-content a:hover { opacity: .75; }
 
     /* タイピングインジケーター */
     .typing-indicator .bubble-content {
@@ -1453,13 +1462,34 @@
       messages.scrollTop = messages.scrollHeight;
     }
 
+    /* ──────────────────────────────────────────
+       答えの中の ** を太字に、URLをリンクに、改行を <br> にする
+       🔴 先にHTMLとして無害化する。この順番は変えない
+       ────────────────────────────────────────── */
+    function renderRich(text) {
+      const esc = String(text)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+      return esc
+        .replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>')
+        .replace(/(https?:\/\/[^\s<"]+)/g, (m) => {
+          /* 文末の句読点はリンクに含めない */
+          const url = m.replace(/[。、．，,.）)」』！？!?]+$/, '');
+          const tail = m.slice(url.length);
+          return `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>${tail}`;
+        })
+        .replace(/\n/g, '<br>');
+    }
+
     /* メッセージバブルを追加 */
     function addBubble(role, text = '') {
       const wrapper = document.createElement('div');
       wrapper.className = `chat-bubble ${role}`;
       const bubble = document.createElement('div');
       bubble.className = 'bubble-content';
-      bubble.textContent = text;
+      bubble.innerHTML = renderRich(text);
       wrapper.appendChild(bubble);
       messages.appendChild(wrapper);
       scrollToBottom();
@@ -1551,6 +1581,9 @@
               botBubble.textContent = fullText;
               scrollToBottom();
             } else if (data.type === 'done') {
+              /* 書き終わってから整形する。途中で整形すると ** が出たり消えたりする */
+              botBubble.innerHTML = renderRich(fullText);
+              scrollToBottom();
               history.push({ role: 'assistant', content: fullText });
             } else if (data.type === 'error') {
               botBubble.textContent = 'エラーが発生しました。もう一度お試しください。';
