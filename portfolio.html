@@ -182,16 +182,22 @@
     <p class="sec-sub">小さく始めて、効果が出たら継続・拡張。まずは一番効く所から。</p>
     <div class="services">
       <div class="service">
-        <div class="ico">🤖</div>
-        <h3>チャットボット構築</h3>
-        <p>社内問い合わせ・FAQ・接客対応を自動化。LINE / Web 埋め込み、API連携まで対応。</p>
-        <span class="price">2.5万円〜</span>
+        <div class="ico">📅</div>
+        <h3>予約・申込システム</h3>
+        <p>お客さま向けの画面と管理画面をセットで。<b>同時にアクセスされても二重に登録されない</b>作りにします。</p>
+        <span class="price">8万円〜</span>
       </div>
       <div class="service">
         <div class="ico">⚙️</div>
         <h3>業務自動化</h3>
-        <p>毎日の手作業（転記・集計・通知）を GAS / スプレッドシート / AI で自動化。</p>
+        <p>毎日の手作業（<b>紙・PDFの読み取り</b>、転記、集計、通知）を GAS / スプレッドシート / AI で自動化。</p>
         <span class="price">3,000円〜</span>
+      </div>
+      <div class="service">
+        <div class="ico">🤖</div>
+        <h3>チャットボット構築</h3>
+        <p>社内問い合わせ・FAQ・接客対応を自動化。LINE / Web 埋め込み、API連携まで対応。</p>
+        <span class="price">2.5万円〜</span>
       </div>
       <div class="service">
         <div class="ico">✨</div>
@@ -213,6 +219,25 @@
     <h2 class="sec-title">制作実績</h2>
     <p class="sec-sub">すべて自分で企画・開発したもの。動くものでご判断ください。</p>
     <div class="works">
+
+      <div class="work">
+        <span class="tag">Webシステム · リアルタイム · Node.js</span>
+        <h3>二重予約が起きない予約システム</h3>
+        <p>お客さまが予約する画面と、運営側の管理画面の両方を作りました。
+        スマホ対応のカレンダーで空き状況を見て、入力から完了まで4ステップで予約できます。<br>
+        🔴 <b>同じ枠に10件の予約を同時に送っても、成功するのは定員分だけです。</b>
+        書き込みロック・条件付き更新・データベース側の制約の<b>三段構え</b>で二重予約を防ぎ、
+        二度押しや通信の再送は<b>冪等キーで1件にまとめます</b>。
+        そのテストは管理画面から実際に打てます。<br>
+        予約が入ると、<b>開いている全部の画面に即座に反映</b>されます。
+        通信が切れても自動で再接続し、取りこぼしは定期的な再取得で補います。</p>
+        <div class="stack"><span class="chip">Node.js</span><span class="chip">SQLite</span><span class="chip">Server-Sent Events</span><span class="chip">排他制御</span><span class="chip">管理画面</span></div>
+        <a href="https://reservation-demo-lxws.onrender.com/" target="_blank" rel="noopener">動くところを見る（デモ） →</a>
+        <p style="font-size:.85em;opacity:.75;margin-top:.5em">
+        ※ 無料プランで動かしているため、初回の表示に30〜50秒かかります。
+        管理画面は <code>/admin</code>（ID: admin ／ PW: demo1234）。
+        デモとして自作したもので、実業務での稼働実績はまだありません。</p>
+      </div>
 
       <div class="work">
         <span class="tag">AI-OCR · 業務自動化 · GAS</span>
